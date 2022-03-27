@@ -1,19 +1,24 @@
 /**
  * Класс Подзадача
-  */
-public class Subtask extends Task{
-    private int epicID;
+ */
+public class Subtask extends Task {
+    private Integer epicID;
 
-    public Subtask(int id, String name, String description, String status, int epicID) {
+    public Subtask(Integer id, String name, String description, String status, Integer epicID) {
         super(id, name, description, status);
         this.epicID = epicID;
     }
 
-    public int getEpicID() {
+    public Subtask(String name, String description, String status, Integer epicID) {
+        super(name, description, status);
+        this.epicID = epicID;
+    }
+
+    public Integer getEpicID() {
         return epicID;
     }
 
-    public void setEpicID(int epicID) {
+    public void setEpicID(Integer epicID) {
         this.epicID = epicID;
     }
 }
