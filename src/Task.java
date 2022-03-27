@@ -4,9 +4,9 @@ import java.util.Objects;
  * Класс Задача
  */
 public class Task {
+    private Integer id;
     private String name;
     private String description;
-    private int id;
     private String status;
 
     @Override
@@ -19,13 +19,19 @@ public class Task {
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, description, id, status);
+        return Objects.hash(id, name, description, status);
     }
 
-    public Task(String name, String description, int id, String status) {
+    public Task(int id, String name, String description, String status) {
+        this.id = id;
         this.name = name;
         this.description = description;
-        this.id = id;
+        this.status = status;
+    }
+
+    public Task(String name, String description, String status) {
+        this.name = name;
+        this.description = description;
         this.status = status;
     }
 
@@ -64,9 +70,9 @@ public class Task {
     @Override
     public String toString() {
         return "Task{" +
+                ", id=" + id +
                 "name='" + name + '\'' +
                 ", description='" + description + '\'' +
-                ", id=" + id +
                 ", status='" + status + '\'' +
                 '}';
     }

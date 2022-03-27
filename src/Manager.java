@@ -5,13 +5,14 @@ import java.util.HashMap;
  * Менеджер задач
  */
 public class Manager {
-    private HashMap<Integer, Task> tasks =new HashMap<>();
-    private HashMap<Integer, Subtask> subtasks =new HashMap<>();
-    private HashMap<Integer, Epic> epics =new HashMap<>();
+    private HashMap<Integer, Task> tasks = new HashMap<>();
+    private HashMap<Integer, Subtask> subtasks = new HashMap<>();
+    private HashMap<Integer, Epic> epics = new HashMap<>();
     private int generatorId = 0;
 
     /**
      * Метод для получения списка задач
+     *
      * @return
      */
     public ArrayList<Task> getListOfAllTasks() {
@@ -27,6 +28,7 @@ public class Manager {
 
     /**
      * Метод для получения задачи по идентификатору
+     *
      * @return
      */
     public Task getTaskById(int id) {
@@ -35,6 +37,7 @@ public class Manager {
 
     /**
      * Метод для создания задачи
+     *
      * @return
      */
     public Task createTask(Task task) {
@@ -62,6 +65,7 @@ public class Manager {
 
     /**
      * Метод для получения списка подзадач
+     *
      * @return
      */
     public ArrayList<Subtask> getListOfAllSubtasks() {
@@ -77,6 +81,7 @@ public class Manager {
 
     /**
      * Метод для получения подзадачи по идентификатору
+     *
      * @return
      */
     public Subtask getSubtaskById(int id) {
@@ -85,11 +90,18 @@ public class Manager {
 
     /**
      * Метод для создания подзадачи
+     *
      * @return
      */
     public Subtask createSubtask(Subtask subtask) {
+        Epic epic = epics.get(subtask.getEpicID());
+        if (epic == null) {
+            return null;
+        }
         subtask.setId(++generatorId);
+        epic.addSubtask(subtask);
         subtasks.put(subtask.getId(), subtask);
+        updateEpic(epic);
         return subtask;
     }
 
@@ -100,17 +112,20 @@ public class Manager {
         if (!subtasks.containsKey(subtask.getId())) {
             return;
         }
-        tasks.put(subtask.getId(), subtask);
+        subtasks.put(subtask.getId(), subtask);
     }
 
     /**
      * Метод для удаления подзадачи по идентификатору
      */
-    public void deleteSubtaskById(int id) {
+    public void deleteSubtaskById(int id, Subtask subtask) {
         subtasks.remove(id);
+        epic.removeSubtask(subtask);
     }
+
     /**
      * Метод для получения списка эпиков
+     *
      * @return
      */
     public ArrayList<Epic> getListOfAllEpics() {
@@ -126,6 +141,7 @@ public class Manager {
 
     /**
      * Метод для получения эпика по идентификатору
+     *
      * @return
      */
     public Epic getEpicById(int id) {
@@ -134,11 +150,14 @@ public class Manager {
 
     /**
      * Метод для создания эпика
+     *
      * @return
      */
-    public Epic createEpic(Epic epic) {
+    public Epic createEpic(int id, String name, String description, String status, ArrayList<Subtask> subtasks) {
+        Epic epic = new Epic(id, name, description, status, subtasks);
         epic.setId(++generatorId);
-        tasks.put(epic.getId(), epic);
+        setEpicStatus(status);
+        epics.put(epic.getId(), epic);
         return epic;
     }
 
@@ -149,7 +168,7 @@ public class Manager {
         if (!epics.containsKey(epic.getId())) {
             return;
         }
-        tasks.put(epic.getId(), epic);
+        epics.put(epic.getId(), epic);
     }
 
     /**
@@ -159,4 +178,10 @@ public class Manager {
         epics.remove(id);
     }
 
+    /**
+     * Метод для вычисления и присвоения статуса эпика
+     */
+    private String setEpicStatus(String status) {
+        epic.getSubtasks();
+    }
 }
