@@ -1,3 +1,9 @@
+import manager.Manager;
+import models.Epic;
+import models.Status;
+import models.Subtask;
+import models.Task;
+
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -6,7 +12,7 @@ public class Main {
         // создаем менеджер
         Manager manager = new Manager();
 
-        // ----------- Задачи Task ------------
+        // ----------- Задачи models.Task ------------
         // создаем новую задачу
         Task newTask = new Task("Задача 1", "Описание задачи 1", Status.New);
         Task createdTask = manager.createTask(newTask);

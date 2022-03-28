@@ -1,3 +1,5 @@
+package models;
+
 import java.util.Objects;
 
 /**
@@ -72,7 +74,7 @@ public class Task {
 
     @Override
     public String toString() {
-        return "Task{" +
+        return "models.Task{" +
                 ", id=" + id +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +

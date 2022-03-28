@@ -1,3 +1,10 @@
+package manager;
+
+import models.Epic;
+import models.Subtask;
+import models.Task;
+import models.Status;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
@@ -264,34 +271,30 @@ public class Manager {
         }
     }
 
-
     /**
      * Вычисляет статус эпика по его подзадачам
      *
-     * @return Status
+     * @return models.Status
      */
     private String computeEpicStatus(Epic epic) {
         ArrayList<Subtask> allSubtasks = epic.getSubtasks();
         // если у эпика нет подзадач или все они имеют статус NEW, то статус должен быть NEW
+        // если все подзадачи имеют статус DONE, то и эпик считается завершённым — со статусом DONE.
         if (allSubtasks.isEmpty()) {
             return Status.New;
         }
         boolean allSubtasksHaveStatusNew = true;
+        boolean allSubtasksHaveStatusDone = true;
         for (Subtask subtask : allSubtasks) {
             if (!Objects.equals(subtask.getStatus(), Status.New)) {
                 allSubtasksHaveStatusNew = false;
             }
-        }
-        if (allSubtasksHaveStatusNew) {
-            return Status.New;
-        }
-
-        // если все подзадачи имеют статус DONE, то и эпик считается завершённым — со статусом DONE.
-        boolean allSubtasksHaveStatusDone = true;
-        for (Subtask subtask : allSubtasks) {
             if (!Objects.equals(subtask.getStatus(), Status.Done)) {
                 allSubtasksHaveStatusDone = false;
             }
+        }
+        if (allSubtasksHaveStatusNew) {
+            return Status.New;
         }
         if (allSubtasksHaveStatusDone) {
             return Status.Done;
