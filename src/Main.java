@@ -1,24 +1,21 @@
-import manager.Manager;
-import models.Epic;
-import models.Status;
-import models.Subtask;
-import models.Task;
+import manager.*;
+import models.*;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class Main {
     public static void main(String[] args) {
         // создаем менеджер
-        Manager manager = new Manager();
+        Manager manager = Managers.getManager();
 
         // ----------- Задачи models.Task ------------
         // создаем новую задачу
-        Task newTask = new Task("Задача 1", "Описание задачи 1", Status.New);
+        Task newTask = new Task("Задача 1", "Описание задачи 1", Status.NEW);
         Task createdTask = manager.createTask(newTask);
 
         //check
-        Task taskToCheck = new Task(1, "Задача 1", "Описание задачи 1", Status.New);
+        Task taskToCheck = new Task(1, "Задача 1", "Описание задачи 1", Status.NEW);
         if (!Objects.equals(createdTask, taskToCheck)) {
             System.err.println("Ошибка! Задача не создана!");
             return;
@@ -37,7 +34,7 @@ public class Main {
             return;
         }
         taskToUpdate2.setDescription("Другое нормальное описание");
-        taskToUpdate2.setStatus(Status.InProgress);
+        taskToUpdate2.setStatus(Status.INPROGRESS);
         Task updatedTask2 = manager.updateTask(taskToUpdate2);
 
         // удаление задачи
@@ -47,8 +44,8 @@ public class Main {
         }
 
         // получение всех задач
-        manager.createTask(new Task("Для теста", "Описание", Status.Done)); //добавили для теста
-        ArrayList<Task> taskList = manager.getAllTasks();
+        manager.createTask(new Task("Для теста", "Описание", Status.DONE)); //добавили для теста
+        List<Task> taskList = manager.getAllTasks();
         if (taskList.size() != 1) {
             System.out.println("Ошибка получения списка задач");
         }
@@ -62,22 +59,22 @@ public class Main {
         // -------------- SUBTASKS ------------------
         // создаем новую подзадачу
         Epic createdEpic = manager.createEpic(new Epic("Эпик 1", "Новый эпик 1"));
-        manager.createSubtask(new Subtask("Сабтаск к эпику 1", "Описание сабтаска", Status.New,
+        manager.createSubtask(new Subtask("Сабтаск к эпику 1", "Описание сабтаска", Status.NEW,
                 createdEpic.getId()));
 
         //check
-        ArrayList<Subtask> epicSubtasks = manager.getEpicSubtasks(createdEpic.getId());
+        List<Subtask> epicSubtasks = manager.getEpicSubtasks(createdEpic.getId());
         if (epicSubtasks.size() != 1) {
             System.out.println("ОШИБКА! Задач в эпике " + epicSubtasks.size() + " шт! Должно быть - 1 шт.");
         }
 
-        ArrayList<Subtask> allSubtasks = manager.getAllSubtasks();
+        List<Subtask> allSubtasks = manager.getAllSubtasks();
         if (allSubtasks.size() != 1) {
             System.out.println("ОШИБКА! Подзадач в списке всего  " + epicSubtasks.size() + " шт! Должно быть - 1 шт.");
         }
 
-        if (!Objects.equals(createdEpic.getStatus(), Status.New)) {
-            System.out.println("ОШИБКА! Статус эпика " + createdEpic.getStatus() + " Должен быть " + Status.New);
+        if (!Objects.equals(createdEpic.getStatus(), Status.NEW)) {
+            System.out.println("ОШИБКА! Статус эпика " + createdEpic.getStatus() + " Должен быть " + Status.NEW);
         }
 
         //Удаляем эпики
@@ -86,5 +83,13 @@ public class Main {
         manager.deleteEpic(5);
         System.out.println(manager.getAllEpics());
         System.out.println(manager.getEpicSubtasks(3));
+
+        //Печатаем список последних задач
+        HistoryManager historyManager = Managers.getHistoryManager();
+        manager.createTask(new Task("Таск", "Описание", Status.NEW));
+        System.out.println(manager.getAllTasks());
+        manager.getTask(7);
+        System.out.println(historyManager.getHistory());
+
     }
 }

@@ -6,14 +6,14 @@ import java.util.ArrayList;
  * Класс Эпик
  */
 public class Epic extends Task {
-    private ArrayList<Subtask> subtasks = new ArrayList<>();
+    private final ArrayList<Subtask> subtasks = new ArrayList<>();
 
     public Epic(Integer id, String name, String description) {
-        super(id, name, description, Status.New);
+        super(id, name, description, Status.NEW);
     }
 
     public Epic(String name, String description) {
-        super(name, description, Status.New);
+        super(name, description, Status.NEW);
     }
 
     public ArrayList<Subtask> getSubtasks() {
