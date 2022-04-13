@@ -11,6 +11,8 @@ import java.util.List;
  */
 public interface Manager {
 
+    List<Task> getHistory();
+
     /**
      * Создает новую задачу
      *

@@ -7,7 +7,7 @@ import java.util.Objects;
 public class Main {
     public static void main(String[] args) {
         // создаем менеджер
-        Manager manager = Managers.getManager();
+        Manager manager = Managers.getDefault();
 
         // ----------- Задачи models.Task ------------
         // создаем новую задачу
@@ -85,11 +85,17 @@ public class Main {
         System.out.println(manager.getEpicSubtasks(3));
 
         //Печатаем список последних задач
-        HistoryManager historyManager = Managers.getHistoryManager();
-        manager.createTask(new Task("Таск", "Описание", Status.NEW));
-        System.out.println(manager.getAllTasks());
-        manager.getTask(7);
+        Manager historyManager = Managers.getDefault();
+        historyManager.createTask(new Task("Задача", "Для истории", Status.NEW));
+        historyManager.getTask(1);
+        historyManager.createEpic(new Epic("Эпик 2", "Новый эпик 2"));
+        historyManager.getEpic(2);
+        System.out.println("Печатаем список:");
         System.out.println(historyManager.getHistory());
 
+        for (int i = 0; i < 100; i++) {
+            historyManager.getTask(1);
+        }
+        System.out.println("Размер списка: " + historyManager.getHistory().size());
     }
 }

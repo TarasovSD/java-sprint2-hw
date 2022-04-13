@@ -4,6 +4,7 @@ import models.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Objects;
 
 public class InMemoryManager implements Manager {
@@ -12,6 +13,16 @@ public class InMemoryManager implements Manager {
     private final HashMap<Integer, Epic> epics = new HashMap<>();
     private int generatorId = 0;
 
+    private HistoryManager historyManager;
+
+    public InMemoryManager(HistoryManager historyManager) {
+        this.historyManager = historyManager;
+    }
+
+    @Override
+    public List<Task> getHistory() {
+        return historyManager.getHistory();
+    }
 
     /**
      * Генерирует новый id
@@ -44,10 +55,9 @@ public class InMemoryManager implements Manager {
 
     @Override
     public Task getTask(int taskId) {
-        Managers.getHistoryManager();
-        HistoryManager inMemoryHistoryManager = new InMemoryHistoryManager();
-        inMemoryHistoryManager.add(tasks.get(taskId));
-        return tasks.get(taskId);
+        Task task = tasks.get(taskId);
+        historyManager.add(tasks.get(taskId));
+        return task;
     }
 
     @Override
@@ -106,7 +116,9 @@ public class InMemoryManager implements Manager {
 
     @Override
     public Subtask getSubtask(int taskId) {
-        return subtasks.get(taskId);
+        Subtask subtask = subtasks.get(taskId);
+        historyManager.add(subtask);
+        return subtask;
     }
 
     @Override
@@ -164,7 +176,9 @@ public class InMemoryManager implements Manager {
 
     @Override
     public Epic getEpic(int epicId) {
-        return epics.get(epicId);
+        Epic epic = epics.get(epicId);
+        historyManager.add(epic);
+        return epic;
     }
 
     @Override
