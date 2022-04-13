@@ -7,17 +7,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
-public class InMemoryManager implements Manager {
+public class InMemoryManager implements TaskManager {
     private final HashMap<Integer, Task> tasks = new HashMap<>();
     private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
     private final HashMap<Integer, Epic> epics = new HashMap<>();
     private int generatorId = 0;
 
-    private HistoryManager historyManager;
-
-    public InMemoryManager(HistoryManager historyManager) {
-        this.historyManager = historyManager;
-    }
+    HistoryManager historyManager = Managers.getDefaultHistory();
 
     @Override
     public List<Task> getHistory() {

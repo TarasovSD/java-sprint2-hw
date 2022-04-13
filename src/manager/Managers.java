@@ -5,8 +5,11 @@ public class Managers {
     /**
      * Получает реализацию класса InMemoryManager
      */
-    public static Manager getDefault() {
-        InMemoryHistoryManager inMemoryHistoryManager = new InMemoryHistoryManager();
-        return new InMemoryManager(inMemoryHistoryManager);
+    public static TaskManager getDefault() {
+        return new InMemoryManager();
+    }
+
+    public static HistoryManager getDefaultHistory() {
+        return new InMemoryHistoryManager();
     }
 }

@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Менеджер задач
  */
-public interface Manager {
+public interface TaskManager {
 
     List<Task> getHistory();
 
