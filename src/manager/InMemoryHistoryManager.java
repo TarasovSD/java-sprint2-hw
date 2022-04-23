@@ -16,9 +16,12 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void add(Task task) {
+        if (task == null) {
+            return;
+        }
         final Node<Task> node = history.get(task.getId());
         if (node != null) {
-            removeNode(node);
+            removeNodeFromListAndHistory(node.item);
         }
         linkLast(task);
     }
@@ -26,36 +29,43 @@ public class InMemoryHistoryManager implements HistoryManager {
     @Override
     public List<Task> getHistory() {
         List<Task> list = new ArrayList<>();
-        Node<Task> node = first;
-        while (node != null) {
-            //Todo add to list
-            list.add(node.item);
+        Node<Task> currentNode = first;
+        while (currentNode != null) {
+            list.add(currentNode.item);
+            currentNode = currentNode.next;
         }
         return list;
     }
 
     @Override
     public void remove(Task task) {
-        final Node<Task> node = history.remove(task.getId());
-        if (node != null) {
-            removeNode(node);
-        }
+            removeNodeFromListAndHistory(task);
     }
 
-    private void removeNode(Node<Task> node) {
-        if (node == first) {
+    private void removeNodeFromListAndHistory(Task task) {
+        Node<Task> node = history.remove(task.getId());
+        if(node == null) {
+            return;
+        }
+        if (node == first && node == last) {
+            first = null;
+            last = null;
+            return;
+        } else if (node == first) {
             first = first.next;
             first.prev = null;
             return;
-        }
-        if (node == last) {
+        } else if (node == last) {
             last = last.prev;
             last.next = null;
             return;
         }
-        //Todo
-        node.prev.next = node.next;
-        node.next.prev = node.prev;
+        Node<Task> prevNode = node.prev;
+        Node<Task> nextNode = node.next;
+        prevNode.next = nextNode;
+        nextNode.prev = prevNode;
+        node.prev = null;
+        node.next = null;
     }
 
     public static class Node<E> {
@@ -70,14 +80,17 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
     }
 
-    void linkLast(Task e) {
+    void linkLast(Task task) {
+        if (first == null) {
+            first = new Node<>(null, task, null);
+            last = first;
+            history.put(task.getId(), first);
+            return;
+        }
         final Node<Task> lastElement = last;
-        final Node<Task> newNode = new Node<>(lastElement, e, null);
+        final Node<Task> newNode = new Node<>(lastElement, task, null);
+        lastElement.next = newNode;
         last = newNode;
-        if (lastElement == null)
-            first = newNode;
-        else
-            lastElement.next = newNode;
-        history.put(e.getId(), newNode);
+        history.put(task.getId(), newNode);
     }
 }

@@ -52,12 +52,13 @@ public class InMemoryManager implements TaskManager {
     @Override
     public Task getTask(int taskId) {
         Task task = tasks.get(taskId);
-        historyManager.add(tasks.get(taskId));
+        historyManager.add(task);
         return task;
     }
 
     @Override
     public Task deleteTask(int id) {
+        historyManager.remove(tasks.get(id));
         return tasks.remove(id);
     }
 

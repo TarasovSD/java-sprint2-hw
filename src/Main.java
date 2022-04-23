@@ -87,15 +87,44 @@ public class Main {
         //Печатаем список последних задач
         TaskManager historyManager = Managers.getDefault();
         historyManager.createTask(new Task("Задача", "Для истории", Status.NEW));
+        historyManager.createTask(new Task("Задача1", "Для истории1", Status.NEW));
         historyManager.getTask(1);
+        historyManager.getTask(2);
+        historyManager.createEpic(new Epic("Эпик 1", "Новый эпик 1"));
+        historyManager.getEpic(3);
         historyManager.createEpic(new Epic("Эпик 2", "Новый эпик 2"));
-        historyManager.getEpic(2);
+        historyManager.getEpic(4);
+        historyManager.createSubtask(new Subtask("Сабтаск 1", "к эпику 2", Status.NEW,
+                3));
+        historyManager.getSubtask(5);
+        historyManager.createSubtask(new Subtask("Сабтаск 2", "к эпику 2", Status.NEW,
+                3));
+        historyManager.getSubtask(6);
+        historyManager.createSubtask(new Subtask("Сабтаск 3", "к эпику 2", Status.NEW,
+                3));
+        historyManager.getSubtask(7);
         System.out.println("Печатаем список:");
         System.out.println(historyManager.getHistory());
+        System.out.println("Размер списка: " + historyManager.getHistory().size());
 
-        for (int i = 0; i < 100; i++) {
-            historyManager.getTask(1);
-        }
+        historyManager.getSubtask(5);
+        historyManager.getEpic(4);
+        historyManager.getTask(1);
+
+        System.out.println("Печатаем список:");
+        System.out.println(historyManager.getHistory());
+        System.out.println("Размер списка: " + historyManager.getHistory().size());
+
+        historyManager.deleteTask(2);
+
+        System.out.println("Печатаем список:");
+        System.out.println(historyManager.getHistory());
+        System.out.println("Размер списка: " + historyManager.getHistory().size());
+
+        historyManager.deleteEpic(3);
+
+        System.out.println("Печатаем список:");
+        System.out.println(historyManager.getHistory());
         System.out.println("Размер списка: " + historyManager.getHistory().size());
     }
 }
