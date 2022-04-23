@@ -120,7 +120,9 @@ public class Main {
         System.out.println("Печатаем список:");
         System.out.println(historyManager.getHistory());
         System.out.println("Размер списка: " + historyManager.getHistory().size());
-
+        // Ошибка возникает при удалении эпика с подзадачами. Причем в любом случае. Возможно прото косяк изначально...
+        // Ранее не вижу, чтобы проверялось удаление эпика с сабтасками...
+        // Проблема еще в том, что я не видел раньше этого исключения, и не знаю, что это значит вообще...
         historyManager.deleteEpic(3);
 
         System.out.println("Печатаем список:");

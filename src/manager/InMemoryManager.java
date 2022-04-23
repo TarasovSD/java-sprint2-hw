@@ -56,6 +56,7 @@ public class InMemoryManager implements TaskManager {
         return task;
     }
 
+    //Здесь все нормально, добавил удаление таски из списка задач
     @Override
     public Task deleteTask(int id) {
         historyManager.remove(tasks.get(id));
@@ -118,6 +119,7 @@ public class InMemoryManager implements TaskManager {
         return subtask;
     }
 
+    //Здесь не понятно, нужно ли что-то вообще делать, возможно все нужно сделать при удалении эпика
     @Override
     public Subtask deleteSubtask(int id) {
         Subtask subtask = getSubtask(id);
@@ -188,7 +190,7 @@ public class InMemoryManager implements TaskManager {
         return epic.getSubtasks();
     }
 
-
+   //Здесь я по идее тоже должен удалить эпик и сабтаски из истории просмотров. Но что бы я не делал, вылезают исключения.
     @Override
     public Epic deleteEpic(int id) {
         ArrayList<Subtask> epicSubtasks = getEpicSubtasks(id);
