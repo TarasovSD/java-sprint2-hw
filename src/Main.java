@@ -85,48 +85,106 @@ public class Main {
         System.out.println(manager.getEpicSubtasks(3));
 
         //Печатаем список последних задач
-        TaskManager historyManager = Managers.getDefault();
-        historyManager.createTask(new Task("Задача", "Для истории", Status.NEW));
-        historyManager.createTask(new Task("Задача1", "Для истории1", Status.NEW));
-        historyManager.getTask(1);
-        historyManager.getTask(2);
-        historyManager.createEpic(new Epic("Эпик 1", "Новый эпик 1"));
-        historyManager.getEpic(3);
-        historyManager.createEpic(new Epic("Эпик 2", "Новый эпик 2"));
-        historyManager.getEpic(4);
-        historyManager.createSubtask(new Subtask("Сабтаск 1", "к эпику 2", Status.NEW,
+        System.out.println("---------------------------------------------------------------");
+        System.out.println("Case 1 - Cоздайте две задачи, эпик с тремя подзадачами и эпик без подзадач");
+        TaskManager historyManagerCase1 = Managers.getDefault();
+        historyManagerCase1.createTask(new Task(1, "Задача 1", "Для истории задачи 1", Status.NEW));
+        historyManagerCase1.createTask(new Task(2, "Задача 2", "Для истории задачи 2", Status.NEW));
+        historyManagerCase1.createEpic(new Epic(3, "Эпик 1", "Эпик с 3 подзадачами"));
+        historyManagerCase1.createSubtask(new Subtask(5, "Сабтаск 1", "к эпику 2", Status.NEW,
                 3));
-        historyManager.getSubtask(5);
-        historyManager.createSubtask(new Subtask("Сабтаск 2", "к эпику 2", Status.NEW,
+        historyManagerCase1.createSubtask(new Subtask(6, "Сабтаск 2", "к эпику 2", Status.NEW,
                 3));
-        historyManager.getSubtask(6);
-        historyManager.createSubtask(new Subtask("Сабтаск 3", "к эпику 2", Status.NEW,
+        historyManagerCase1.createSubtask(new Subtask(7, "Сабтаск 3", "к эпику 2", Status.NEW,
                 3));
-        historyManager.getSubtask(7);
-        System.out.println("Печатаем список:");
-        System.out.println(historyManager.getHistory());
-        System.out.println("Размер списка: " + historyManager.getHistory().size());
+        historyManagerCase1.createEpic(new Epic(4, "Эпик 4", "Эпик без задача"));
 
-        historyManager.getSubtask(5);
-        historyManager.getEpic(4);
-        historyManager.getTask(1);
+        historyManagerCase1.getTask(1);
+        historyManagerCase1.getTask(2);
+        historyManagerCase1.getEpic(3);
+        historyManagerCase1.getEpic(4);
+        historyManagerCase1.getSubtask(5);
+        historyManagerCase1.getSubtask(6);
+        historyManagerCase1.getSubtask(7);
+        List<Task> historyCase1 = historyManagerCase1.getHistory();
+        System.out.println("Case 1 - Печатаем список:");
+        System.out.println(historyCase1);
+        System.out.println("Case 1 - Размер списка: " + historyCase1.size());
+        if (historyCase1.size() != 7) {
+            System.out.println("ОШИБКА!!! Case 1 - Ожидалась длина истории: " + 7 + ", но было " + historyCase1.size());
+        }
+        if (historyCase1.get(0).getId() != 1) {
+            System.out.println("ОШИБКА!!! Case 1 - Первый элемент должен быть : " + 1 + ", но было "
+                + historyCase1.get(0).getId());
+        }
+        if (historyCase1.get(historyCase1.size() - 1).getId() != 7) {
+            System.out.println("ОШИБКА!!! Case 1 - Последний элемент должен быть : " + 7 + ", но было "
+                + historyCase1.get(historyCase1.size() - 1).getId());
+        }
+        System.out.println();
 
-        System.out.println("Печатаем список:");
-        System.out.println(historyManager.getHistory());
-        System.out.println("Размер списка: " + historyManager.getHistory().size());
+        System.out.println("---------------------------------------------------------------");
+        System.out.println("Case 2 - запросите созданные задачи несколько раз в разном порядке");
+        historyManagerCase1.getTask(1);
+        List<Task> historyCase2 = historyManagerCase1.getHistory();
+        if (historyCase2.size() != 7) {
+            System.out.println("ОШИБКА!!! Case 2 - Ожидалась длина истории: " + 7 + ", но было " + historyCase2.size());
+        }
+        if (historyCase2.get(0).getId() != 2) {
+            System.out.println("ОШИБКА!!! Case 2 - Первый элемент должен быть : " + 2 + ", но было "
+                + historyCase2.get(0).getId());
+        }
+        if (historyCase2.get(historyCase2.size() - 1).getId() != 1) {
+            System.out.println("ОШИБКА!!! Case 2 - Последний элемент должен быть : " + 1 + ", но было "
+                + historyCase2.get(historyCase2.size() - 1).getId());
+        }
+        historyManagerCase1.getEpic(4);
+        List<Task> historyCase3 = historyManagerCase1.getHistory();
+        if (historyCase3.size() != 7) {
+            System.out.println("ОШИБКА!!! Case 2 - Ожидалась длина истории: " + 7 + ", но было " + historyCase3.size());
+        }
+        if (historyCase3.get(historyCase3.size() - 1).getId() != 4) {
+            System.out.println("ОШИБКА!!! Case 2 - Последний элемент должен быть : " + 4 + ", но было "
+                + historyCase3.get(historyCase3.size() - 1).getId());
+        }
 
-        historyManager.deleteTask(2);
+        System.out.println("---------------------------------------------------------------");
+        System.out.println("Case 3 - удалите задачу, которая есть в истории, и проверьте, что при печати она не будетвыводиться");
+        System.out.println(" ---Удалим самую первую задачу в списке истории (задача с id 2)");
+        historyManagerCase1.deleteTask(2);
+        List<Task> historyCase4 = historyManagerCase1.getHistory();
+        if (historyCase4.size() != 6) {
+            System.out.println("ОШИБКА!!! Case 3 - Ожидалась длина истории: " + 6 + ", но было " + historyCase4.size());
+        }
+        if (historyCase4.get(0).getId() != 3) {
+            System.out.println("ОШИБКА!!! Case 3 - Первый элемент должен быть : " + 3 + ", но было "
+                + historyCase4.get(0).getId());
+        }
+        System.out.println(" ---Удалим самую последнюю задачу в списке истории (эпик без задач с id 4)");
+        historyManagerCase1.deleteEpic(4);
+        List<Task> historyCase5 = historyManagerCase1.getHistory();
+        if (historyCase5.size() != 5) {
+            System.out.println("ОШИБКА!!! Case 3 - Ожидалась длина истории: " + 5 + ", но было " + historyCase5.size());
+        }
+        if (historyCase5.get(historyCase5.size() - 1).getId() != 1) {
+            System.out.println("ОШИБКА!!! Case 3 - Последний элемент должен быть : " + 1 + ", но было "
+                + historyCase5.get(historyCase5.size() - 1).getId());
+        }
 
-        System.out.println("Печатаем список:");
-        System.out.println(historyManager.getHistory());
-        System.out.println("Размер списка: " + historyManager.getHistory().size());
-        // Ошибка возникает при удалении эпика с подзадачами. Причем в любом случае. Возможно прото косяк изначально...
-        // Ранее не вижу, чтобы проверялось удаление эпика с сабтасками...
-        // Проблема еще в том, что я не видел раньше этого исключения, и не знаю, что это значит вообще...
-        historyManager.deleteEpic(3);
-
-        System.out.println("Печатаем список:");
-        System.out.println(historyManager.getHistory());
-        System.out.println("Размер списка: " + historyManager.getHistory().size());
+        System.out.println(" ---Удалим эпик с 3 подзадачами (эпик с id 3)");
+        historyManagerCase1.deleteEpic(3);
+        List<Task> historyCase6 = historyManagerCase1.getHistory();
+        if (historyCase6.size() != 1) {
+            System.out.println("ОШИБКА!!! Case 3 - Ожидалась длина истории: " + 1 + ", но было " + historyCase6.size());
+        }
+        if (historyCase6.get(0).getId() != 1) {
+            System.out.println("ОШИБКА!!! Case 3 - Первый элемент должен быть : " + 1 + ", но было "
+                + historyCase6.get(0).getId());
+        }
+        if (historyCase6.get(historyCase6.size() - 1).getId() != 1) {
+            System.out.println("ОШИБКА!!! Case 3 - Последний элемент должен быть : " + 1 + ", но было "
+                + historyCase6.get(historyCase6.size() - 1).getId());
+        }
+        System.out.println(historyManagerCase1.getHistory());
     }
 }

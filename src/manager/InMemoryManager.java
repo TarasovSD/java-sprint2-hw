@@ -31,7 +31,7 @@ public class InMemoryManager implements TaskManager {
 
     @Override
     public Task createTask(Task newTask) {
-        int taskId = generateNextId();
+        int taskId = newTask.getId() != null ? newTask.getId() : generateNextId();
         newTask.setId(taskId);
         tasks.put(taskId, newTask);
         return newTask;
@@ -56,7 +56,6 @@ public class InMemoryManager implements TaskManager {
         return task;
     }
 
-    //Здесь все нормально, добавил удаление таски из списка задач
     @Override
     public Task deleteTask(int id) {
         historyManager.remove(tasks.get(id));
@@ -77,12 +76,12 @@ public class InMemoryManager implements TaskManager {
 
     @Override
     public Subtask createSubtask(Subtask newSubtask) {
-        Epic epic = getEpic(newSubtask.getEpicID());
+        Epic epic = getEpicForInner(newSubtask.getEpicID());
         if (epic == null) {
             System.out.println("Эпик не найден!");
             return null;
         }
-        int taskId = generateNextId();
+        int taskId = newSubtask.getId() != null ? newSubtask.getId() : generateNextId();
         newSubtask.setId(taskId);
         subtasks.put(taskId, newSubtask);
         epic.addSubtask(newSubtask);
@@ -99,37 +98,41 @@ public class InMemoryManager implements TaskManager {
             return null;
         }
         if (!Objects.equals(taskToUpdate.getEpicID(), foundTask.getEpicID())) {
-            Epic epicToRemoveSubtask = getEpic(foundTask.getEpicID());
-            Epic epicToAddSubtask = getEpic(taskToUpdate.getEpicID());
+            Epic epicToRemoveSubtask = getEpicForInner(foundTask.getEpicID());
+            Epic epicToAddSubtask = getEpicForInner(taskToUpdate.getEpicID());
             epicToRemoveSubtask.removeSubtask(foundTask);
             epicToAddSubtask.addSubtask(taskToUpdate);
             updateEpic(epicToRemoveSubtask);
             updateEpic(epicToAddSubtask);
         }
         subtasks.put(taskId, taskToUpdate);
-        Epic epic = getEpic(taskToUpdate.getEpicID());
+        Epic epic = getEpicForInner(taskToUpdate.getEpicID());
         updateEpic(epic);
         return taskToUpdate;
     }
 
     @Override
     public Subtask getSubtask(int taskId) {
-        Subtask subtask = subtasks.get(taskId);
+        Subtask subtask = getSubtaskForInner(taskId);
         historyManager.add(subtask);
         return subtask;
     }
 
-    //Здесь не понятно, нужно ли что-то вообще делать, возможно все нужно сделать при удалении эпика
+    private Subtask getSubtaskForInner(int taskId) {
+        return subtasks.get(taskId);
+    }
+
     @Override
     public Subtask deleteSubtask(int id) {
-        Subtask subtask = getSubtask(id);
-        Epic epic = getEpic(subtask.getEpicID());
+        Subtask subtask = getSubtaskForInner(id);
+        Epic epic = getEpicForInner(subtask.getEpicID());
         if (epic == null) {
             System.out.println("Эпик не найден!");
             return null;
         }
         epic.removeSubtask(subtask);
         updateEpic(epic);
+        historyManager.remove(subtask);
         return subtasks.remove(id);
     }
 
@@ -153,7 +156,7 @@ public class InMemoryManager implements TaskManager {
 
     @Override
     public Epic createEpic(Epic newEpic) {
-        int epicId = generateNextId();
+        int epicId = newEpic.getId() != null ? newEpic.getId() : generateNextId();
         newEpic.setId(epicId);
         epics.put(epicId, newEpic);
         return newEpic;
@@ -175,28 +178,33 @@ public class InMemoryManager implements TaskManager {
 
     @Override
     public Epic getEpic(int epicId) {
-        Epic epic = epics.get(epicId);
+        Epic epic = getEpicForInner(epicId);
         historyManager.add(epic);
         return epic;
     }
 
+    private Epic getEpicForInner(int epicId) {
+        return epics.get(epicId);
+    }
+
+
     @Override
     public ArrayList<Subtask> getEpicSubtasks(int epicId) {
-        Epic epic = getEpic(epicId);
+        Epic epic = getEpicForInner(epicId);
         if (epic == null) {
             System.out.println("Эпик не найден!");
             return null;
         }
-        return epic.getSubtasks();
+        return new ArrayList<>(epic.getSubtasks());
     }
 
-   //Здесь я по идее тоже должен удалить эпик и сабтаски из истории просмотров. Но что бы я не делал, вылезают исключения.
     @Override
     public Epic deleteEpic(int id) {
         ArrayList<Subtask> epicSubtasks = getEpicSubtasks(id);
         for (Subtask subtask : epicSubtasks) {
             deleteSubtask(subtask.getId());
         }
+        historyManager.remove(epics.get(id));
         return epics.remove(id);
     }
 

@@ -39,12 +39,12 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void remove(Task task) {
-            removeNodeFromListAndHistory(task);
+        removeNodeFromListAndHistory(task);
     }
 
     private void removeNodeFromListAndHistory(Task task) {
         Node<Task> node = history.remove(task.getId());
-        if(node == null) {
+        if (node == null) {
             return;
         }
         if (node == first && node == last) {
