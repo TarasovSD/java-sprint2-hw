@@ -17,7 +17,7 @@ public interface HistoryManager {
     /**
      * Удаляет задачу
      */
-    void remove(Task task);
+    void remove(int taskId);
 
     /**
      * Возвращает лист с историей
