@@ -6,10 +6,11 @@ import java.util.Objects;
  * Класс Задача
  */
 public class Task {
-    private Integer id;
-    private String name;
-    private String description;
-    private Status status;
+    protected Integer id;
+    protected String name;
+    protected String description;
+    protected Status status;
+    protected TaskTypes type;
 
     public Task(Integer id, String name, String description, Status status) {
         this.id = id;
@@ -19,6 +20,14 @@ public class Task {
     }
 
     public Task(String name, String description, Status status) {
+        this.name = name;
+        this.description = description;
+        this.status = status;
+    }
+
+    public Task(Integer id, TaskTypes type, String name, String description, Status status) {
+        this.id = id;
+        this.type = type;
         this.name = name;
         this.description = description;
         this.status = status;
@@ -54,6 +63,14 @@ public class Task {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public TaskTypes getTaskTypes() {
+        return type;
+    }
+
+    public void setTaskTypes(TaskTypes type) {
+        this.type = type;
     }
 
 
