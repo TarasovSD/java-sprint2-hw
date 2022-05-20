@@ -33,7 +33,6 @@ public class FileBackedTasksManager extends InMemoryManager {
     @Override
     public Task createTask(Task newTask) {
         final Task task = super.createTask(newTask);
-        save();
         return task;
     }
 
@@ -74,7 +73,6 @@ public class FileBackedTasksManager extends InMemoryManager {
     @Override
     public Subtask createSubtask(Subtask newSubtask) {
         final Subtask subtask = super.createSubtask(newSubtask);
-        save();
         return subtask;
     }
 
@@ -115,7 +113,6 @@ public class FileBackedTasksManager extends InMemoryManager {
     @Override
     public Epic createEpic(Epic newEpic) {
         final Epic epic = super.createEpic(newEpic);
-        save();
         return epic;
     }
 
@@ -184,7 +181,7 @@ public class FileBackedTasksManager extends InMemoryManager {
     /**
      * Возвращает задачу из полученной на входе строки
      */
-    private Task fromString(String value) {
+    private Task fromString(String value) throws IllegalStateException {
         final String[] fields = value.split(",");
         Task newTask;
         switch (TaskTypes.valueOf(fields[1])) {
@@ -240,11 +237,11 @@ public class FileBackedTasksManager extends InMemoryManager {
                 writer.append(toString(entry.getValue()));
                 writer.newLine();
             }
-            for (Map.Entry<Integer, Subtask> entry : subtasks.entrySet()) {
+            for (Map.Entry<Integer, Epic> entry : epics.entrySet()) {
                 writer.append(toString(entry.getValue()));
                 writer.newLine();
             }
-            for (Map.Entry<Integer, Epic> entry : epics.entrySet()) {
+            for (Map.Entry<Integer, Subtask> entry : subtasks.entrySet()) {
                 writer.append(toString(entry.getValue()));
                 writer.newLine();
             }
@@ -274,13 +271,6 @@ public class FileBackedTasksManager extends InMemoryManager {
                 }
                 Task task = fromString(line);
                 int id = task.getId();
-                if (task.getTaskTypes() == TaskTypes.TASK) {
-                    tasks.put(id, task);
-                } else if (task.getTaskTypes() == TaskTypes.SUBTASK) {
-                    subtasks.put(id, (Subtask) task);
-                } else if (task.getTaskTypes() == TaskTypes.EPIC) {
-                    epics.put(id, (Epic) task);
-                }
                 if (maxID < id) {
                     maxID = id;
                 }
@@ -345,8 +335,17 @@ public class FileBackedTasksManager extends InMemoryManager {
         System.out.println(manager.getAllEpics());
         System.out.println("---------------Проверка истории задач---------------------------");
         System.out.println(manager.getHistory());
-
-
+        System.out.println("---------------Проверка истории загрузки из стороннего файла----");
+        FileBackedTasksManager manager1 = FileBackedTasksManager.loadFromFile(new File("G:/СЕРГЕЙ/Java/Проекты/HWsprint2/java-sprint2-hw/taskToTest.csv"));
+        // Файл taskToTest.csv скопирован с task.csv, после чего просто изменено название.
+        System.out.println("---------------Проверка наличия задач в manager-----------------");
+        System.out.println(manager1.getAllTasks());
+        System.out.println("---------------Проверка наличия подзадач в manager--------------");
+        System.out.println(manager1.getAllSubtasks());
+        System.out.println("---------------Проверка наличия епиков в manager----------------");
+        System.out.println(manager1.getAllEpics());
+        System.out.println("---------------Проверка истории задач---------------------------");
+        System.out.println(manager1.getHistory());
     }
 }
 
