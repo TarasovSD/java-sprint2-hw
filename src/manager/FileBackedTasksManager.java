@@ -33,6 +33,7 @@ public class FileBackedTasksManager extends InMemoryManager {
     @Override
     public Task createTask(Task newTask) {
         final Task task = super.createTask(newTask);
+        save();
         return task;
     }
 
@@ -73,6 +74,7 @@ public class FileBackedTasksManager extends InMemoryManager {
     @Override
     public Subtask createSubtask(Subtask newSubtask) {
         final Subtask subtask = super.createSubtask(newSubtask);
+        save();
         return subtask;
     }
 
@@ -113,6 +115,7 @@ public class FileBackedTasksManager extends InMemoryManager {
     @Override
     public Epic createEpic(Epic newEpic) {
         final Epic epic = super.createEpic(newEpic);
+        save();
         return epic;
     }
 
@@ -313,7 +316,7 @@ public class FileBackedTasksManager extends InMemoryManager {
 
     public static void main(String[] args) {
         System.out.println("---------Проверка сохранения менеджера в файла------------");
-        FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(new File("task.csv"));
+        FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(new File("task3.csv"));
         Task taskToCheck = new Task(1, TASK, "Задача 1", "Описание задачи 1", Status.NEW);
         fileBackedTasksManager.createTask(taskToCheck);
         fileBackedTasksManager.createTask(new Task(2, TASK, "Задача 2", "Описание задачи 2",
