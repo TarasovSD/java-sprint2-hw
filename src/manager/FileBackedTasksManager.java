@@ -4,8 +4,6 @@ import exception.ManagerSaveException;
 import models.*;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -180,7 +178,7 @@ public class FileBackedTasksManager extends InMemoryManager {
             getLineFromTask = task.getId() + "," + taskType + "," + task.getName()
                     + "," + status + "," + task.getDescription();
         }
-        return  getLineFromTask;
+        return getLineFromTask;
     }
 
     /**
@@ -199,8 +197,10 @@ public class FileBackedTasksManager extends InMemoryManager {
                 return createEpic(new Epic(Integer.valueOf(fields[0]), EPIC, String.valueOf(fields[2]),
                         String.valueOf(fields[4])));
             case SUBTASK:
-                return createSubtask(new Subtask(Integer.valueOf(fields[0]), SUBTASK, String.valueOf(fields[2]),
-                                String.valueOf(fields[4]), Status.valueOf(fields[3]), Integer.valueOf(fields[5])));
+                newTask = new Subtask(Integer.valueOf(fields[0]), SUBTASK, String.valueOf(fields[2]),
+                        String.valueOf(fields[4]), Status.valueOf(fields[3]), Integer.valueOf(fields[5]));
+                createSubtask((Subtask) newTask);
+                return newTask;
             default:
                 throw new IllegalStateException("Unexpected value: " + TaskTypes.valueOf(fields[1]));
         }
@@ -218,12 +218,12 @@ public class FileBackedTasksManager extends InMemoryManager {
     }
 
     /**
-    * Возвращает список с id задач из полученной на входе строки
-    */
+     * Возвращает список с id задач из полученной на входе строки
+     */
     static List<Integer> historyFromString(String value) {
         final String[] id = value.split(",");
         List<Integer> history = new ArrayList<>();
-        for (String v : id){
+        for (String v : id) {
             history.add(Integer.valueOf(v));
         }
         return history;
@@ -269,11 +269,10 @@ public class FileBackedTasksManager extends InMemoryManager {
             reader.readLine();
             while (true) {
                 String line = reader.readLine();
-                System.out.println(line);
-                Task task = fromString(line);
-                if (task == null) {
-                    System.out.println("Пустая задача");
+                if (line.isEmpty()) {
+                    break;
                 }
+                Task task = fromString(line);
                 int id = task.getId();
                 if (task.getTaskTypes() == TaskTypes.TASK) {
                     tasks.put(id, task);
@@ -285,11 +284,29 @@ public class FileBackedTasksManager extends InMemoryManager {
                 if (maxID < id) {
                     maxID = id;
                 }
-                if (line.isEmpty()) {
-                    break;
+            }
+            String line = reader.readLine();
+            List<Integer> history = historyFromString(line);
+            List<Task> allTasks = getAllTasks();
+            List<Subtask> allSubtasks = getAllSubtasks();
+            List<Epic> allEpics = getAllEpics();
+            for (Integer iD : history) {
+                for (Task task : allTasks) {
+                    if (iD == task.getId()) {
+                        historyManager.add(task);
+                    }
+                    for (Subtask subtask : allSubtasks) {
+                        if (iD == subtask.getId()) {
+                            historyManager.add(subtask);
+                        }
+                    }
+                    for (Epic epic : allEpics) {
+                        if (iD == epic.getId()) {
+                            historyManager.add(epic);
+                        }
+                    }
                 }
             }
-            reader.readLine();
         } catch (IOException e) {
             throw new ManagerSaveException(e.getMessage());
         }
@@ -304,7 +321,7 @@ public class FileBackedTasksManager extends InMemoryManager {
         return manager;
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         System.out.println("---------Проверка сохранения менеджера в файла------------");
         FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(new File("task.csv"));
         Task taskToCheck = new Task(1, TASK, "Задача 1", "Описание задачи 1", Status.NEW);
@@ -319,9 +336,15 @@ public class FileBackedTasksManager extends InMemoryManager {
         System.out.println(fileBackedTasksManager.toString(taskToCheck));
         System.out.println("---------------------------------------------------------------");
         System.out.println("---------Проверка восстановления менеджера из файла------------");
-        FileBackedTasksManager fileBackedTasksManager1 = FileBackedTasksManager.loadFromFile(new File("G:/СЕРГЕЙ/Java/Проекты/HWsprint2/java-sprint2-hw/task.csv"));
-//        FileBackedTasksManager fileBackedTasksManager1 = FileBackedTasksManager.loadFromFile(fileBackedTasksManager.file);
-
+        FileBackedTasksManager manager = FileBackedTasksManager.loadFromFile(fileBackedTasksManager.file);
+        System.out.println("---------------Проверка наличия задач в manager-----------------");
+        System.out.println(manager.getAllTasks());
+        System.out.println("---------------Проверка наличия подзадач в manager--------------");
+        System.out.println(manager.getAllSubtasks());
+        System.out.println("---------------Проверка наличия епиков в manager----------------");
+        System.out.println(manager.getAllEpics());
+        System.out.println("---------------Проверка истории задач---------------------------");
+        System.out.println(manager.getHistory());
 
 
     }
