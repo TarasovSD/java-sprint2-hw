@@ -27,6 +27,7 @@ public class FileBackedTasksManager extends InMemoryManager {
     @Override
     public List<Task> getHistory() {
         final List<Task> tasks = super.getHistory();
+        save();
         return tasks;
     }
 
@@ -249,9 +250,8 @@ public class FileBackedTasksManager extends InMemoryManager {
                 writer.newLine();
             }
             writer.append("\n");
-
-            for (int i = 0; i < getHistory().size(); i++) {
-                List<Task> history = historyManager.getHistory();
+            List<Task> history = historyManager.getHistory();
+            for (int i = 0; i < history.size(); i++) {
                 String idToStr = String.valueOf(history.get(i).getId());
                 writer.append(idToStr + ",");
             }
@@ -316,7 +316,7 @@ public class FileBackedTasksManager extends InMemoryManager {
 
     public static void main(String[] args) {
         System.out.println("---------Проверка сохранения менеджера в файла------------");
-        FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(new File("task3.csv"));
+        FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(new File("task.csv"));
         Task taskToCheck = new Task(1, TASK, "Задача 1", "Описание задачи 1", Status.NEW);
         fileBackedTasksManager.createTask(taskToCheck);
         fileBackedTasksManager.createTask(new Task(2, TASK, "Задача 2", "Описание задачи 2",
@@ -338,9 +338,12 @@ public class FileBackedTasksManager extends InMemoryManager {
         System.out.println(manager.getAllEpics());
         System.out.println("---------------Проверка истории задач---------------------------");
         System.out.println(manager.getHistory());
+        System.out.println("---------------------------------------------------------------");
         System.out.println("---------------Проверка истории загрузки из стороннего файла----");
         FileBackedTasksManager manager1 = FileBackedTasksManager.loadFromFile(new File("G:/СЕРГЕЙ/Java/Проекты/HWsprint2/java-sprint2-hw/taskToTest.csv"));
-        // Файл taskToTest.csv скопирован с task.csv, после чего просто изменено название.
+        /**
+         * Файл taskToTest.csv скопирован с task.csv, после чего просто изменено название.
+         */
         System.out.println("---------------Проверка наличия задач в manager-----------------");
         System.out.println(manager1.getAllTasks());
         System.out.println("---------------Проверка наличия подзадач в manager--------------");
