@@ -86,6 +86,12 @@ public class InMemoryManager implements TaskManager {
         newSubtask.setId(taskId);
         subtasks.put(taskId, newSubtask);
         epic.addSubtask(newSubtask);
+        int duration = newSubtask.getDuration();
+        epic.setDuration(duration);
+        if (epic.getSubtasks().size() == 1) {
+            epic.setStart(newSubtask.getStart());
+        }
+        epic.setEnd(newSubtask.getEnd());
         updateEpic(epic);
         return newSubtask;
     }
@@ -143,9 +149,12 @@ public class InMemoryManager implements TaskManager {
     @Override
     public void deleteAllSubtasks() {
         ArrayList<Epic> allEpics = getAllEpics();
-        for (Epic epic : allEpics) {
-            ArrayList<Subtask> subtasks = epic.getSubtasks();
-            for (Subtask subtask : subtasks) {
+
+        for (int i = 0; i < allEpics.size(); i++) {
+            Epic epic = allEpics.get(i);
+            ArrayList<Subtask> allSubtasks = epic.getSubtasks();
+            for (int k = 0; k < allSubtasks.size(); k++) {
+                Subtask subtask = allSubtasks.get(k);
                 deleteSubtask(subtask.getId());
             }
         }

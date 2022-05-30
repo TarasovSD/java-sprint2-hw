@@ -1,5 +1,6 @@
 package models;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
@@ -11,6 +12,9 @@ public class Task {
     protected String description;
     protected Status status;
     protected TaskTypes type;
+    protected LocalDateTime start;
+    protected int duration;
+    protected LocalDateTime end;
 
     public Task(Integer id, String name, String description, Status status) {
         this.id = id;
@@ -31,6 +35,33 @@ public class Task {
         this.name = name;
         this.description = description;
         this.status = status;
+    }
+
+    public Task(Integer id, String name, String description, Status status, TaskTypes type, LocalDateTime start,
+                int duration) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.status = status;
+        this.type = type;
+        this.start = start;
+        this.duration = duration;
+        this.end = start.plusMinutes(duration);
+    }
+
+    public Task(Integer id, TaskTypes type, String name, String description, Status status , LocalDateTime start,
+                int duration) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.status = status;
+        this.type = type;
+        this.start = start;
+        this.duration = duration;
+        this.end = start.plusMinutes(duration);
+    }
+
+    public Task(Integer id, String name, String description, Status status, TaskTypes type, LocalDateTime start) {
     }
 
     public String getName() {
@@ -73,6 +104,29 @@ public class Task {
         this.type = type;
     }
 
+    public int getDuration() {
+        return duration;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public LocalDateTime getStart() {
+        return start;
+    }
+
+    public LocalDateTime getEnd() {
+        return end;
+    }
+
+    public void setStart(LocalDateTime start) {
+        this.start = start;
+    }
+
+    public void setEnd(LocalDateTime end) {
+        this.end = end;
+    }
 
     @Override
     public boolean equals(Object o) {

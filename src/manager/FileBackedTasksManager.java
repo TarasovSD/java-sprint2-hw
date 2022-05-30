@@ -340,7 +340,7 @@ public class FileBackedTasksManager extends InMemoryManager {
         System.out.println(manager.getHistory());
         System.out.println("---------------------------------------------------------------");
         System.out.println("---------------Проверка истории загрузки из стороннего файла----");
-        FileBackedTasksManager manager1 = FileBackedTasksManager.loadFromFile(new File("G:/СЕРГЕЙ/Java/Проекты/HWsprint2/java-sprint2-hw/taskToTest.csv"));
+        FileBackedTasksManager manager1 = FileBackedTasksManager.loadFromFile(new File("/Users/macbookpro/Desktop/Учеба/java-sprint2-hw/taskToTest.csv"));
         /**
          * Файл taskToTest.csv скопирован с task.csv, после чего просто изменено название.
          */
@@ -354,4 +354,3 @@ public class FileBackedTasksManager extends InMemoryManager {
         System.out.println(manager1.getHistory());
     }
 }
-
