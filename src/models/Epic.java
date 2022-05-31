@@ -21,14 +21,8 @@ public class Epic extends Task {
         super(id, type, name, description, Status.NEW);
     }
 
-    public Epic(Integer id, String name, String description, TaskTypes type, LocalDateTime start, int duration) {
-        super(id, name, description, Status.NEW, type, start, duration);
-        this.duration = duration;
-    }
-
     public Epic(Integer id, TaskTypes type, String name, String description, LocalDateTime start, int duration) {
-        super(id, name, description, Status.NEW, type, start, duration);
-        this.duration = duration;
+        super(id, type, name, description, Status.NEW, start, duration);
     }
 
     public ArrayList<Subtask> getSubtasks() {
@@ -45,7 +39,7 @@ public class Epic extends Task {
 
     @Override
     public void setDuration(int duration) {
-        this.duration += duration;
+        this.duration = duration;
     }
 }
 

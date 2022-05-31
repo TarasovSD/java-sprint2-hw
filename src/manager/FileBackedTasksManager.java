@@ -4,6 +4,8 @@ import exception.ManagerSaveException;
 import models.*;
 
 import java.io.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -167,17 +169,20 @@ public class FileBackedTasksManager extends InMemoryManager {
     private String toString(Task task) {
         String status = String.valueOf(task.getStatus());
         String taskType = String.valueOf(task.getTaskTypes());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd_MM_yyyy|HH:mm");
+        String  time = task.getStart().format(formatter);
+        String duration = String.valueOf(task.getDuration());
         String getLineFromTask = null;
         if (taskType.equals("TASK")) {
             getLineFromTask = task.getId() + "," + taskType + "," + task.getName()
-                    + "," + status + "," + task.getDescription();
+                    + "," + status + "," + task.getDescription() + "," + time + "," + duration;
         } else if (taskType.equals("SUBTASK")) {
             Subtask subtask = (Subtask) task;
             getLineFromTask = task.getId() + "," + taskType + "," + task.getName()
-                    + "," + status + "," + task.getDescription() + "," + subtask.getEpicID();
+                    + "," + status + "," + task.getDescription() + "," + subtask.getEpicID() + "," + time + "," + duration;
         } else if (taskType.equals("EPIC")) {
             getLineFromTask = task.getId() + "," + taskType + "," + task.getName()
-                    + "," + status + "," + task.getDescription();
+                    + "," + status + "," + task.getDescription() + "," + time + "," + duration;
         }
         return getLineFromTask;
     }
@@ -188,18 +193,19 @@ public class FileBackedTasksManager extends InMemoryManager {
     private Task fromString(String value) throws IllegalStateException {
         final String[] fields = value.split(",");
         Task newTask;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd_MM_yyyy|HH:mm");
         switch (TaskTypes.valueOf(fields[1])) {
             case TASK:
                 newTask = new Task(Integer.valueOf(fields[0]), TASK, String.valueOf(fields[2]), String.valueOf(fields[4]),
-                        Status.valueOf(fields[3]));
+                        Status.valueOf(fields[3]), LocalDateTime.parse(fields[5], formatter), Integer.valueOf(fields[6]));
                 createTask(newTask);
                 return newTask;
             case EPIC:
                 return createEpic(new Epic(Integer.valueOf(fields[0]), EPIC, String.valueOf(fields[2]),
-                        String.valueOf(fields[4])));
+                        String.valueOf(fields[4]), LocalDateTime.parse(fields[5], formatter), Integer.valueOf(fields[6])));
             case SUBTASK:
                 newTask = new Subtask(Integer.valueOf(fields[0]), SUBTASK, String.valueOf(fields[2]),
-                        String.valueOf(fields[4]), Status.valueOf(fields[3]), Integer.valueOf(fields[5]));
+                        String.valueOf(fields[4]), Status.valueOf(fields[3]), Integer.valueOf(fields[5]), LocalDateTime.parse(fields[6], formatter), Integer.valueOf(fields[7]));
                 createSubtask((Subtask) newTask);
                 return newTask;
             default:
@@ -235,7 +241,7 @@ public class FileBackedTasksManager extends InMemoryManager {
      */
     private void save() {
         try (final BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-            writer.append("id,type,name,status,description,epic");
+            writer.append("id,type,name,status,description,epic,time,duration");
             writer.append("\n");
             for (Map.Entry<Integer, Task> entry : tasks.entrySet()) {
                 writer.append(toString(entry.getValue()));
@@ -315,15 +321,17 @@ public class FileBackedTasksManager extends InMemoryManager {
     }
 
     public static void main(String[] args) {
-        System.out.println("---------Проверка сохранения менеджера в файла------------");
+        System.out.println("---------Проверка сохранения менеджера в файл------------");
         FileBackedTasksManager fileBackedTasksManager = new FileBackedTasksManager(new File("task.csv"));
-        Task taskToCheck = new Task(1, TASK, "Задача 1", "Описание задачи 1", Status.NEW);
+        Task taskToCheck = new Task(1, TASK, "Задача 1", "Описание задачи 1", Status.NEW, LocalDateTime.of(2022, 5, 31, 6, 0), 20);
         fileBackedTasksManager.createTask(taskToCheck);
         fileBackedTasksManager.createTask(new Task(2, TASK, "Задача 2", "Описание задачи 2",
-                Status.NEW));
-        fileBackedTasksManager.createEpic(new Epic(3, EPIC, "Эпик 3", "Описание эпика 3"));
+                Status.NEW, LocalDateTime.of(2022, 5, 31, 6, 0), 20));
+        fileBackedTasksManager.createEpic(new Epic(3, EPIC, "Эпик 3", "Описание эпика 3", LocalDateTime.of(2022, 5, 31, 7, 0), 0));
         fileBackedTasksManager.createSubtask(new Subtask(4, SUBTASK, "Сабтаск 4", "Описание задачи 4",
-                Status.NEW, 3));
+                Status.NEW, 3, LocalDateTime.of(2022, 5, 31, 8, 0), 20));
+        fileBackedTasksManager.createSubtask(new Subtask(5, SUBTASK, "Сабтаск 5", "Описание задачи 5",
+                Status.NEW, 3, LocalDateTime.of(2022, 5, 31, 9, 0), 20));
         fileBackedTasksManager.getTask(1);
         fileBackedTasksManager.getEpic(3);
         System.out.println(fileBackedTasksManager.toString(taskToCheck));
@@ -340,7 +348,7 @@ public class FileBackedTasksManager extends InMemoryManager {
         System.out.println(manager.getHistory());
         System.out.println("---------------------------------------------------------------");
         System.out.println("---------------Проверка истории загрузки из стороннего файла----");
-        FileBackedTasksManager manager1 = FileBackedTasksManager.loadFromFile(new File("/Users/macbookpro/Desktop/Учеба/java-sprint2-hw/taskToTest.csv"));
+        FileBackedTasksManager manager1 = FileBackedTasksManager.loadFromFile(new File("/Users/macbookpro/Desktop/Учеба/java-sprint2-hw/taskToTest2.csv"));
         /**
          * Файл taskToTest.csv скопирован с task.csv, после чего просто изменено название.
          */

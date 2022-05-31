@@ -87,12 +87,16 @@ public class InMemoryManager implements TaskManager {
         subtasks.put(taskId, newSubtask);
         epic.addSubtask(newSubtask);
         int duration = newSubtask.getDuration();
-        epic.setDuration(duration);
         if (epic.getSubtasks().size() == 1) {
             epic.setStart(newSubtask.getStart());
         }
         epic.setEnd(newSubtask.getEnd());
         updateEpic(epic);
+        int epicDuration = 0;
+        for (Subtask subtask : epic.getSubtasks()) {
+            epicDuration += subtask.getDuration();
+            epic.setDuration(epicDuration);
+        }
         return newSubtask;
     }
 

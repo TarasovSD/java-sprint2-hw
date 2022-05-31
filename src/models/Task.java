@@ -37,18 +37,6 @@ public class Task {
         this.status = status;
     }
 
-    public Task(Integer id, String name, String description, Status status, TaskTypes type, LocalDateTime start,
-                int duration) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.status = status;
-        this.type = type;
-        this.start = start;
-        this.duration = duration;
-        this.end = start.plusMinutes(duration);
-    }
-
     public Task(Integer id, TaskTypes type, String name, String description, Status status , LocalDateTime start,
                 int duration) {
         this.id = id;
@@ -59,9 +47,6 @@ public class Task {
         this.start = start;
         this.duration = duration;
         this.end = start.plusMinutes(duration);
-    }
-
-    public Task(Integer id, String name, String description, Status status, TaskTypes type, LocalDateTime start) {
     }
 
     public String getName() {

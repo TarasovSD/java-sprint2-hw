@@ -16,13 +16,13 @@ abstract class ManagerTest<T extends TaskManager> {
     Epic epic;
 
     void init(){
-        newTask = new Task(1, "Задача 1", "Описание задачи 1", Status.NEW, TaskTypes.TASK,
+        newTask = new Task(1, TaskTypes.TASK, "Задача 1", "Описание задачи 1", Status.NEW,
                 LocalDateTime.now(), 20);
         taskManager.createTask(newTask);
-        epic = new Epic(2, "Эпик 2", "Описание эпика 2", TaskTypes.EPIC, LocalDateTime.now(), 0);
+        epic = new Epic(2, TaskTypes.EPIC, "Эпик 2", "Описание эпика 2", LocalDateTime.now(), 0);
         taskManager.createEpic(epic);
-        subtask = new Subtask(3, "Сабтаск 3", "Описание сабтаска 3", Status.NEW,
-                TaskTypes.SUBTASK, LocalDateTime.now(), 20,2);
+        subtask = new Subtask(3, TaskTypes.SUBTASK, "Сабтаск 3", "Описание сабтаска 3", Status.NEW,
+                2, LocalDateTime.now(), 20);
         taskManager.createSubtask(subtask);
         taskManager.getTask(1);
         taskManager.getEpic(2);
@@ -53,8 +53,8 @@ abstract class ManagerTest<T extends TaskManager> {
 
     @Test
     void updateTask() {
-        Task taskToUpdate = new Task(1, "Задача 1", "Новое описание задачи 1", Status.DONE,
-                TaskTypes.TASK, LocalDateTime.now(), 20);
+        Task taskToUpdate = new Task(1, TaskTypes.TASK, "Задача 1", "Новое описание задачи 1", Status.DONE,
+                 LocalDateTime.now(), 20);
         taskManager.updateTask(taskToUpdate);
         assertEquals(Status.DONE, taskManager.getTask(1).getStatus());
         assertEquals("Новое описание задачи 1", taskManager.getTask(1).getDescription());
@@ -109,8 +109,8 @@ abstract class ManagerTest<T extends TaskManager> {
 
     @Test
     void updateSubtask() {
-        Subtask subtaskToUpdate = new Subtask(3, "Сабтаск 3", "Новое писание сабтаска 3",
-                Status.DONE, TaskTypes.SUBTASK, LocalDateTime.now(), 20,2);
+        Subtask subtaskToUpdate = new Subtask(3, TaskTypes.SUBTASK, "Сабтаск 3", "Новое писание сабтаска 3",
+                Status.DONE,2, LocalDateTime.now(), 20);
         taskManager.updateSubtask(subtaskToUpdate);
         assertEquals(Status.DONE, taskManager.getSubtask(3).getStatus());
         assertEquals("Новое писание сабтаска 3", taskManager.getSubtask(3).getDescription());
@@ -153,8 +153,8 @@ abstract class ManagerTest<T extends TaskManager> {
 
     @Test
     void createEpic() {
-        Subtask subtask1 = new Subtask(4, "Сабтаск 4", "Описание сабтаска 4", Status.DONE,
-                TaskTypes.SUBTASK, LocalDateTime.now(), 20,2);
+        Subtask subtask1 = new Subtask(4, TaskTypes.SUBTASK, "Сабтаск 4", "Описание сабтаска 4",
+                Status.DONE,2, LocalDateTime.now(), 20);
         taskManager.createSubtask(subtask1);
         LocalDateTime startSubtask = subtask.getStart();
         LocalDateTime endSubtask1 = subtask1.getEnd();
@@ -170,7 +170,7 @@ abstract class ManagerTest<T extends TaskManager> {
 
     @Test
     void updateEpic() {
-        Epic epicToUpdate = epic = new Epic(2, "Эпик 2", "Новое описание эпика 2", TaskTypes.EPIC,
+        Epic epicToUpdate = epic = new Epic(2, TaskTypes.EPIC, "Эпик 2", "Новое описание эпика 2",
                 LocalDateTime.now(), 0);
         taskManager.updateEpic(epicToUpdate);
         assertEquals("Новое описание эпика 2", taskManager.getEpic(2).getDescription());
@@ -213,7 +213,7 @@ abstract class ManagerTest<T extends TaskManager> {
 
     @Test
     void deleteAllEpics() {
-        Epic epic1 = new Epic(4, "Эпик 4", "Описание эпика 4", TaskTypes.EPIC,
+        Epic epic1 = new Epic(4, TaskTypes.EPIC, "Эпик 4", "Описание эпика 4",
                 LocalDateTime.now(), 0);
         taskManager.createEpic(epic1);
         taskManager.deleteAllEpics();
