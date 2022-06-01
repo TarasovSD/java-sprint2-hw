@@ -5,6 +5,7 @@ import models.Subtask;
 import models.Task;
 
 import java.util.List;
+import java.util.TreeSet;
 
 /**
  * Менеджер задач
@@ -12,6 +13,18 @@ import java.util.List;
 public interface TaskManager {
 
     List<Task> getHistory();
+
+    /**
+     * Возвращает список задач, отсортированный по времени
+     *
+     * @return - TreeSet<Task>
+     */
+    TreeSet<Task> getPrioritizedTasks();
+
+    /**
+     * ищет пересечения по времени и добавляет задачу в отсортированный список
+     */
+    void findingIntersectionsAndAddingTask(Task task);
 
     /**
      * Создает новую задачу

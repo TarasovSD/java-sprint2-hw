@@ -37,7 +37,7 @@ public class Task {
         this.status = status;
     }
 
-    public Task(Integer id, TaskTypes type, String name, String description, Status status , LocalDateTime start,
+    public Task(Integer id, TaskTypes type, String name, String description, Status status, LocalDateTime start,
                 int duration) {
         this.id = id;
         this.name = name;

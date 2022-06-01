@@ -1,11 +1,11 @@
 package manager;
 
+import exception.TimeCrossingException;
 import models.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+
+import java.util.Comparator;
 
 public class InMemoryManager implements TaskManager {
     protected final HashMap<Integer, Task> tasks = new HashMap<>();
@@ -14,6 +14,21 @@ public class InMemoryManager implements TaskManager {
     protected int generatorId = 0;
 
     protected HistoryManager historyManager = Managers.getDefaultHistory();
+
+    Comparator<Task> comparator = (o1, o2) -> {
+        if (o1.getStart() == null) {
+            return 1;
+        } else if (o2.getStart() == null) {
+            return -1;
+        } else {
+            return o1.getStart().compareTo(o2.getStart());
+        }
+
+
+    };
+
+    //    protected TreeSet<Task> sortedByTimeListOfTasks = new TreeSet<>(Comparator.comparing(Task::getStart));
+    protected TreeSet<Task> sortedByTimeListOfTasks = new TreeSet<>(comparator);
 
     @Override
     public List<Task> getHistory() {
@@ -30,9 +45,42 @@ public class InMemoryManager implements TaskManager {
     }
 
     @Override
+    public TreeSet<Task> getPrioritizedTasks() {
+        return sortedByTimeListOfTasks;
+    }
+
+    @Override
+    public void findingIntersectionsAndAddingTask(Task task) {
+        if (task.getStart() == null) {
+            sortedByTimeListOfTasks.add(task);
+            return;
+        }
+        for (Map.Entry<Integer, Task> entry : tasks.entrySet()) {
+            if (task.getStart().isAfter(entry.getValue().getStart()) &&
+                    task.getStart().isBefore(entry.getValue().getEnd())) {
+                throw new TimeCrossingException("Задача пересекает ранее созданные задачи");
+            } else if (task.getEnd().isAfter(entry.getValue().getStart())
+                    && task.getEnd().isBefore(entry.getValue().getEnd())) {
+                throw new TimeCrossingException("Задача пересекает ранее созданные задачи");
+            }
+        }
+        for (Map.Entry<Integer, Subtask> entry : subtasks.entrySet()) {
+            if (task.getStart().isAfter(entry.getValue().getStart()) &&
+                    task.getStart().isBefore(entry.getValue().getEnd())) {
+                throw new TimeCrossingException("Подзадача пересекает ранее созданные задачи");
+            } else if (task.getEnd().isAfter(entry.getValue().getStart())
+                    && task.getEnd().isBefore(entry.getValue().getEnd())) {
+                throw new TimeCrossingException("Подзадача пересекает ранее созданные задачи");
+            }
+        }
+        sortedByTimeListOfTasks.add(task);
+    }
+
+    @Override
     public Task createTask(Task newTask) {
         int taskId = newTask.getId() != null ? newTask.getId() : generateNextId();
         newTask.setId(taskId);
+        findingIntersectionsAndAddingTask(newTask);
         tasks.put(taskId, newTask);
         return newTask;
     }
@@ -58,6 +106,7 @@ public class InMemoryManager implements TaskManager {
     @Override
     public Task deleteTask(int id) {
         historyManager.remove(id);
+        sortedByTimeListOfTasks.remove(tasks.get(id));
         return tasks.remove(id);
     }
 
@@ -70,6 +119,7 @@ public class InMemoryManager implements TaskManager {
     public void deleteAllTasks() {
         for (Integer taskId : tasks.keySet()) {
             historyManager.remove(taskId);
+            sortedByTimeListOfTasks.remove(tasks.get(taskId));
         }
         tasks.clear();
     }
@@ -78,6 +128,7 @@ public class InMemoryManager implements TaskManager {
 
     @Override
     public Subtask createSubtask(Subtask newSubtask) {
+        findingIntersectionsAndAddingTask(newSubtask);
         Epic epic = getEpicForInner(newSubtask.getEpicID());
         if (epic == null) {
             return null;
@@ -86,7 +137,6 @@ public class InMemoryManager implements TaskManager {
         newSubtask.setId(taskId);
         subtasks.put(taskId, newSubtask);
         epic.addSubtask(newSubtask);
-        int duration = newSubtask.getDuration();
         if (epic.getSubtasks().size() == 1) {
             epic.setStart(newSubtask.getStart());
         }
@@ -117,6 +167,13 @@ public class InMemoryManager implements TaskManager {
         }
         subtasks.put(taskId, taskToUpdate);
         Epic epic = getEpicForInner(taskToUpdate.getEpicID());
+        for (int i = 0; i < epic.getSubtasks().size(); i++) {
+            Subtask subtaskToDelete = epic.getSubtasks().get(i);
+            if (taskToUpdate.getId() == subtaskToDelete.getId()) {
+                epic.removeSubtask(subtaskToDelete);
+            }
+        }
+        epic.addSubtask(taskToUpdate);
         updateEpic(epic);
         return taskToUpdate;
     }
@@ -142,6 +199,7 @@ public class InMemoryManager implements TaskManager {
         epic.removeSubtask(subtask);
         updateEpic(epic);
         historyManager.remove(id);
+        sortedByTimeListOfTasks.remove(subtasks.get(id));
         return subtasks.remove(id);
     }
 
