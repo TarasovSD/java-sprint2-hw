@@ -3,6 +3,7 @@ package manager;
 import exception.TimeCrossingException;
 import models.*;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 import java.util.Comparator;
@@ -23,8 +24,6 @@ public class InMemoryManager implements TaskManager {
         } else {
             return o1.getStart().compareTo(o2.getStart());
         }
-
-
     };
 
     //    protected TreeSet<Task> sortedByTimeListOfTasks = new TreeSet<>(Comparator.comparing(Task::getStart));
@@ -92,6 +91,7 @@ public class InMemoryManager implements TaskManager {
         if (foundTask == null) {
             return null;
         }
+        findingIntersectionsAndAddingTask(taskToUpdate);
         tasks.put(taskId, taskToUpdate);
         return taskToUpdate;
     }
@@ -137,16 +137,7 @@ public class InMemoryManager implements TaskManager {
         newSubtask.setId(taskId);
         subtasks.put(taskId, newSubtask);
         epic.addSubtask(newSubtask);
-        if (epic.getSubtasks().size() == 1) {
-            epic.setStart(newSubtask.getStart());
-        }
-        epic.setEnd(newSubtask.getEnd());
         updateEpic(epic);
-        int epicDuration = 0;
-        for (Subtask subtask : epic.getSubtasks()) {
-            epicDuration += subtask.getDuration();
-            epic.setDuration(epicDuration);
-        }
         return newSubtask;
     }
 
@@ -165,6 +156,7 @@ public class InMemoryManager implements TaskManager {
             updateEpic(epicToRemoveSubtask);
             updateEpic(epicToAddSubtask);
         }
+        findingIntersectionsAndAddingTask(taskToUpdate);
         subtasks.put(taskId, taskToUpdate);
         Epic epic = getEpicForInner(taskToUpdate.getEpicID());
         for (int i = 0; i < epic.getSubtasks().size(); i++) {
@@ -241,6 +233,25 @@ public class InMemoryManager implements TaskManager {
         }
         Status computedStatus = computeEpicStatus(epicToUpdate);
         epicToUpdate.setStatus(computedStatus);
+        List<Subtask> epicSubtasks = epicToUpdate.getSubtasks();
+        TreeSet<Subtask> sortedByTimeListOfSubtasks = new TreeSet<>(Comparator.comparing(Task::getStart));
+        int subtaskEpicDuration;
+        for (Subtask  subtask : epicSubtasks) {
+            sortedByTimeListOfSubtasks.add(subtask);
+        }
+        if (!sortedByTimeListOfSubtasks.isEmpty()) {
+        epicToUpdate.setStart(sortedByTimeListOfSubtasks.first().getStart());
+        epicToUpdate.setEnd(sortedByTimeListOfSubtasks.last().getEnd());
+        } else {
+            epicToUpdate.setStart(null);
+            epicToUpdate.setEnd(null);
+        }
+        int epicDuration = 0;
+        for (Subtask subtask : epicSubtasks) {
+            subtaskEpicDuration = subtask.getDuration();
+            epicDuration = epicDuration + subtaskEpicDuration;
+        }
+        epicToUpdate.setDuration(epicDuration);
         epics.put(epicId, epicToUpdate);
         return epicToUpdate;
     }
