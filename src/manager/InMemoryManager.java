@@ -193,7 +193,8 @@ public class InMemoryManager implements TaskManager {
 
         for (Epic epic : allEpics) {
             ArrayList<Subtask> allSubtasks = epic.getSubtasks();
-            for (Subtask subtask : allSubtasks) {
+            for (int k = 0; k < allSubtasks.size(); k++) {
+                Subtask subtask = allSubtasks.get(k);
                 deleteSubtask(subtask.getId());
             }
         }
@@ -221,9 +222,7 @@ public class InMemoryManager implements TaskManager {
         List<Subtask> epicSubtasks = epicToUpdate.getSubtasks();
         TreeSet<Subtask> sortedByTimeListOfSubtasks = new TreeSet<>(Comparator.comparing(Task::getStart));
         int subtaskEpicDuration;
-        for (Subtask subtask : epicSubtasks) {
-            sortedByTimeListOfSubtasks.add(subtask);
-        }
+        sortedByTimeListOfSubtasks.addAll(epicSubtasks);
         if (!sortedByTimeListOfSubtasks.isEmpty()) {
             epicToUpdate.setStart(sortedByTimeListOfSubtasks.first().getStart());
             epicToUpdate.setEnd(sortedByTimeListOfSubtasks.last().getEnd());
