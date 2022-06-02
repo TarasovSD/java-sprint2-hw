@@ -148,23 +148,10 @@ public class InMemoryManager implements TaskManager {
         if (foundTask == null) {
             return null;
         }
-        if (!Objects.equals(taskToUpdate.getEpicID(), foundTask.getEpicID())) {
-            Epic epicToRemoveSubtask = getEpicForInner(foundTask.getEpicID());
-            Epic epicToAddSubtask = getEpicForInner(taskToUpdate.getEpicID());
-            epicToRemoveSubtask.removeSubtask(foundTask);
-            epicToAddSubtask.addSubtask(taskToUpdate);
-            updateEpic(epicToRemoveSubtask);
-            updateEpic(epicToAddSubtask);
-        }
         findingIntersectionsAndAddingTask(taskToUpdate);
         subtasks.put(taskId, taskToUpdate);
         Epic epic = getEpicForInner(taskToUpdate.getEpicID());
-        for (int i = 0; i < epic.getSubtasks().size(); i++) {
-            Subtask subtaskToDelete = epic.getSubtasks().get(i);
-            if (taskToUpdate.getId() == subtaskToDelete.getId()) {
-                epic.removeSubtask(subtaskToDelete);
-            }
-        }
+        epic.removeSubtask(foundTask);
         epic.addSubtask(taskToUpdate);
         updateEpic(epic);
         return taskToUpdate;
@@ -204,11 +191,9 @@ public class InMemoryManager implements TaskManager {
     public void deleteAllSubtasks() {
         ArrayList<Epic> allEpics = getAllEpics();
 
-        for (int i = 0; i < allEpics.size(); i++) {
-            Epic epic = allEpics.get(i);
+        for (Epic epic : allEpics) {
             ArrayList<Subtask> allSubtasks = epic.getSubtasks();
-            for (int k = 0; k < allSubtasks.size(); k++) {
-                Subtask subtask = allSubtasks.get(k);
+            for (Subtask subtask : allSubtasks) {
                 deleteSubtask(subtask.getId());
             }
         }
