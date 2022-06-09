@@ -17,6 +17,10 @@ import static models.TaskTypes.*;
 public class FileBackedTasksManager extends InMemoryManager {
     private File file;
 
+    public FileBackedTasksManager() {
+        this(new File("task.csv"), false);
+    }
+
     public FileBackedTasksManager(File file) {
         this(file, false);
     }
@@ -252,7 +256,7 @@ public class FileBackedTasksManager extends InMemoryManager {
     /**
      * Сохраняет в файл
      */
-    private void save() {
+    public void save() {
         try (final BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             writer.append("id,type,name,status,description,epic,time,duration");
             writer.append("\n");
@@ -282,7 +286,7 @@ public class FileBackedTasksManager extends InMemoryManager {
     /**
      * Восстанавливает из файла
      */
-    private void load() {
+    public void load() {
         int maxID = 0;
         try (final BufferedReader reader = new BufferedReader(new FileReader(file))) {
             reader.readLine();

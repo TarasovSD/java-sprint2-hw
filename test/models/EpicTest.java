@@ -102,7 +102,6 @@ class EpicTest {
                 "Описание сабтаска 10", Status.NEW, 8, LocalDateTime.of(2022, 5,
                 31, 14, 0), 20);
         taskManager.createSubtask(subtask5);
-        System.out.println(taskManager.getEpic(8).getSubtasks());
 
         assertEquals(subtask4.getStart(), taskManager.getEpic(8).getStart(),
                 "Поля Start эпика 8 и сабтаска 9 должны быть равны");
