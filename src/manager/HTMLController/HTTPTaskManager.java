@@ -66,9 +66,10 @@ public class HTTPTaskManager extends FileBackedTasksManager {
     @Override
     public void load() {
         try {
-            client.load(task);
-            client.load(subtask);
-            client.load(epic);
+            String jsonTasks = client.load(task);
+            System.out.println(jsonTasks);
+            String jsonSubtasks = client.load(subtask);
+            String jsonEpics = client.load(epic);
         } catch (InterruptedException | IOException e) {
             System.out.println("Во время выполнения запроса ресурса по url-адресу: '" + url + "' возникла ошибка.\n" +
                     "Проверьте, пожалуйста, адрес и повторите попытку.");
@@ -91,5 +92,5 @@ public class HTTPTaskManager extends FileBackedTasksManager {
         TaskManager manager1 = HTTPTaskManager.loadFromFile("http://localhost:8070/");
 
 
-    } 
+    }
 }
