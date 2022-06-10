@@ -4,17 +4,21 @@ import models.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class HistoryManagerTest {
-    protected TaskManager taskManager = Managers.getDefault();
+    TaskManager taskManager = Managers.getDefault();
     Task newTask;
     Task newTask1;
     Subtask subtask;
     Epic epic;
+
+    HistoryManagerTest() throws IOException, InterruptedException {
+    }
 
     @BeforeEach
     void init() {

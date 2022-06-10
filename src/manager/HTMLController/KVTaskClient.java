@@ -13,7 +13,21 @@ public class KVTaskClient {
     String url;
 
     public KVTaskClient(String url) {
+        this.url = url;
         client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder() // получаем экземпляр билдера
+                .GET()    // указываем HTTP-метод запроса
+                .uri(URI.create(url + "register")) // указываем адрес ресурса
+                .build();
+        HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
+        try {
+            HttpResponse<String> response = client.send(request, handler);
+            this.token = response.body();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     void load(String key) throws IOException, InterruptedException {
@@ -24,6 +38,8 @@ public class KVTaskClient {
                 .build();
         HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
         HttpResponse<String> response = client.send(request, handler);
+        System.out.println("Код состояния: " + response.statusCode());
+        System.out.println("Тело ответа: " + response.body());
     }
 
     void put(String key, String json) throws IOException, InterruptedException {

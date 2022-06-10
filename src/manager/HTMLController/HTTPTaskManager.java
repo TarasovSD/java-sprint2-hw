@@ -10,6 +10,7 @@ import models.Status;
 import models.Task;
 import models.TaskTypes;
 
+import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -18,20 +19,32 @@ import java.util.HashMap;
 public class HTTPTaskManager extends FileBackedTasksManager {
     String url;
     KVTaskClient client;
-    final Gson gson = getGson();
+    Gson gson = getGson();
     String task = "TASK";
     String subtask = "SUBTASK";
     String epic = "EPIC";
 
     public HTTPTaskManager(String url) {
+        this.client = new KVTaskClient(url);
+    }
+
+    public HTTPTaskManager(String url, boolean load) {
         this.url = url;
         this.client = new KVTaskClient(url);
+        if (load) {
+            load();
+        }
     }
 
     public static Gson getGson()  {
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter());
         return gsonBuilder.create();
+    }
+
+    public static HTTPTaskManager loadFromFile(String url) {
+        final HTTPTaskManager manager = new HTTPTaskManager(url, true);
+        return manager;
     }
 
     @Override
@@ -63,10 +76,11 @@ public class HTTPTaskManager extends FileBackedTasksManager {
 
     }
 
-    public static void main(String[] args) throws IOException {
-        TaskManager manager = Managers.getDefault();
+    public static void main(String[] args) throws IOException, InterruptedException {
         KVServer server = new KVServer();
         server.start();
+        TaskManager manager = Managers.getDefault();
+
 
         Task newTask = new Task(1, TaskTypes.TASK, "Задача 1", "Описание задачи 1", Status.NEW,
                 LocalDateTime.of(2022, 5, 31, 6, 0), 20);
@@ -74,5 +88,8 @@ public class HTTPTaskManager extends FileBackedTasksManager {
 
         System.out.println(manager.getAllTasks());
 
-    }
+        TaskManager manager1 = HTTPTaskManager.loadFromFile("http://localhost:8070/");
+
+
+    } 
 }

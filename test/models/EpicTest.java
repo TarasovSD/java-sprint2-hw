@@ -5,6 +5,7 @@ import manager.TaskManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,6 +25,9 @@ class EpicTest {
     Subtask subtask6;
     Epic epic;
     Epic epic1;
+
+    EpicTest() throws IOException, InterruptedException {
+    }
 
     @BeforeEach
     void init() {

@@ -23,7 +23,17 @@ public class HttpTaskServer {
     private static final int PORT = 8090;
     private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
     private static final Gson gson = new Gson();
-    private static final TaskManager manager = Managers.getDefault();
+    private static final TaskManager manager;
+
+    static {
+        try {
+            manager = Managers.getDefault();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public static void main(String[] args) throws IOException {
         HttpServer httpServer = HttpServer.create();
