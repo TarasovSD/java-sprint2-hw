@@ -6,6 +6,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -47,8 +48,15 @@ public class KVTaskClient {
         HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
         HttpResponse<String> response = client.send(request, handler);
         JsonElement jsonElement = JsonParser.parseString(response.body());
-        JsonObject jsonObject = jsonElement.getAsJsonObject();
-        String json = jsonObject.getAsString();
+        String json = "";
+        if (jsonElement.isJsonObject()) {
+            JsonObject jsonObject = jsonElement.getAsJsonObject();
+            json = jsonObject.toString();
+        }
+        if (jsonElement.isJsonArray()) {
+            JsonArray jsonArray = jsonElement.getAsJsonArray();
+            json = jsonArray.toString();
+        }
 
         System.out.println("Код состояния: " + response.statusCode());
         System.out.println("Тело ответа: " + response.body());

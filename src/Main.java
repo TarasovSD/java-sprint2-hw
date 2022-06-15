@@ -1,11 +1,13 @@
 import manager.*;
+import manager.HTMLController.KVServer;
 import models.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 //
 //        // создаем менеджер
 //        TaskManager manager = Managers.getDefault();
@@ -188,5 +190,7 @@ public class Main {
 //                + historyCase6.get(historyCase6.size() - 1).getId());
 //        }
 //        System.out.println(historyManagerCase1.getHistory());
+        KVServer server = new KVServer();
+        server.start();
     }
 }

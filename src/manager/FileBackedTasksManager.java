@@ -317,13 +317,13 @@ public class FileBackedTasksManager extends InMemoryManager {
                     if (iD == task.getId()) {
                         historyManager.add(task);
                     }
-                    for (Subtask subtask : allSubtasks) {
-                        if (iD == subtask.getId()) {
+                for (Subtask subtask : allSubtasks) {
+                    if (iD == subtask.getId()) {
                             historyManager.add(subtask);
-                        }
                     }
-                    for (Epic epic : allEpics) {
-                        if (iD == epic.getId()) {
+                }
+                for (Epic epic : allEpics) {
+                    if (iD == epic.getId()) {
                             historyManager.add(epic);
                         }
                     }

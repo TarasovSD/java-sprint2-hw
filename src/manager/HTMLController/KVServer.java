@@ -17,7 +17,7 @@ import com.sun.net.httpserver.HttpServer;
 public class KVServer {
 	public static final int PORT = 8070;
 	private final String apiToken;
-	private final HttpServer server;
+	public final HttpServer server;
 	private final Map<String, String> data = new HashMap<>();
 
 	public KVServer() throws IOException {
@@ -44,11 +44,10 @@ public class KVServer {
 					return;
 				}
 				String response = data.get(key);
-				try (OutputStream os = h.getResponseBody()) {
-					os.write(response.getBytes());
+				sendText(h, response);
 				}
 			}
-		}
+
 		// TODO Добавьте получение значения по ключу
 	}
 

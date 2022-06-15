@@ -10,7 +10,7 @@ public class Managers {
     /**
      * Получает реализацию класса InMemoryManager
      */
-    public static TaskManager getDefault() throws IOException, InterruptedException {
+    public static TaskManager getDefault() {
             return new HTTPTaskManager("http://localhost:8070/");
     }
 
