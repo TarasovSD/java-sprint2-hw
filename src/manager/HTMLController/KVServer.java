@@ -15,7 +15,7 @@ import com.sun.net.httpserver.HttpServer;
  * Постман: https://www.getpostman.com/collections/a83b61d9e1c81c10575c
  */
 public class KVServer {
-	public static final int PORT = 8070;
+	public static final int PORT = 8060;
 	private final String apiToken;
 	public final HttpServer server;
 	private final Map<String, String> data = new HashMap<>();
@@ -119,5 +119,10 @@ public class KVServer {
 		h.getResponseHeaders().add("Content-Type", "application/json");
 		h.sendResponseHeaders(200, resp.length);
 		h.getResponseBody().write(resp);
+	}
+
+	public static void main(String[] args) throws IOException {
+		KVServer server = new KVServer();
+		server.start();
 	}
 }

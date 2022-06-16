@@ -8,9 +8,9 @@ import java.util.Objects;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-//
-//        // создаем менеджер
-//        TaskManager manager = Managers.getDefault();
+
+        // создаем менеджер
+        TaskManager manager = Managers.getDefault();
 //
 //        // ----------- Задачи models.Task ------------
 //        // создаем новую задачу
@@ -188,9 +188,6 @@ public class Main {
 //        if (historyCase6.get(historyCase6.size() - 1).getId() != 1) {
 //            System.out.println("ОШИБКА!!! Case 3 - Последний элемент должен быть : " + 1 + ", но было "
 //                + historyCase6.get(historyCase6.size() - 1).getId());
-//        }
+        }
 //        System.out.println(historyManagerCase1.getHistory());
-        KVServer server = new KVServer();
-        server.start();
-    }
 }
