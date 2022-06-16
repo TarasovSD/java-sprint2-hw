@@ -64,7 +64,7 @@ public class HttpTaskServer {
                         handleGetAllTasks(exchange, os);
                     }
                     exchange.sendResponseHeaders(404, 0);
-                    os.write("Task is not find".getBytes(DEFAULT_CHARSET));
+                    os.write("Task is not found".getBytes(DEFAULT_CHARSET));
                     break;
                 }
                 case "DELETE": {
@@ -100,7 +100,7 @@ public class HttpTaskServer {
             return;
         }
         exchange.sendResponseHeaders(404, 0);
-        os.write("Tasks not find".getBytes());
+        os.write("No task created".getBytes());
     }
 
     private void handleGetTaskWithId(Integer taskId, HttpExchange exchange, OutputStream os) throws IOException {
