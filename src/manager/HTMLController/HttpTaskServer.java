@@ -2,11 +2,10 @@ package manager.HTMLController;
 
 import com.google.gson.Gson;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import manager.Managers;
 import manager.TaskManager;
-import models.*;
+import models.Task;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,7 +14,6 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 
@@ -51,7 +49,7 @@ public class HttpTaskServer {
                 }
             }
             exchange.sendResponseHeaders(200, 0);
-            os.write("This is GET for /tasks/task/".getBytes(DEFAULT_CHARSET));
+            os.write("This is GET for /tasks/subtask/".getBytes(DEFAULT_CHARSET));
         }
     }
 
@@ -72,9 +70,9 @@ public class HttpTaskServer {
                 case "DELETE": {
                     Integer taskId = getQueryParamId(exchange);
                     if (taskId != null) {
-                        handleDeleteTaskWithId();
+//                        handleDeleteTaskWithId();
                     } else {
-                        deleteAllTasks();
+//                        deleteAllTasks();
                     }
                     exchange.sendResponseHeaders(200, 0);
                     os.write("This is DELETE for /tasks/task/".getBytes(DEFAULT_CHARSET));
@@ -83,7 +81,7 @@ public class HttpTaskServer {
                 case "PUT": {
                     Integer taskId = getQueryParamId(exchange);
                     if (taskId != null) {
-                        handlePutTaskWithId();
+//                        handlePutTaskWithId();
                     }
                 }
             }
@@ -107,8 +105,14 @@ public class HttpTaskServer {
 
     private void handleGetTaskWithId(Integer taskId, HttpExchange exchange, OutputStream os) throws IOException {
         Task task = manager.getTask(taskId);
-        exchange.sendResponseHeaders(200, 0);
-        os.write(gson.toJson(task).getBytes());
+        if (task != null) {
+            exchange.sendResponseHeaders(200, 0);
+            os.write(gson.toJson(task).getBytes());
+        } else {
+            exchange.sendResponseHeaders(404, 0);
+            os.write("Tasks not find".getBytes());
+        }
+
     }
 
     private Integer getQueryParamId(HttpExchange exchange) {
