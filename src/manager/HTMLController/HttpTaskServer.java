@@ -63,8 +63,6 @@ public class HttpTaskServer {
                     } else {
                         handleGetAllTasks(exchange, os);
                     }
-                    exchange.sendResponseHeaders(404, 0);
-                    os.write("Task is not found".getBytes(DEFAULT_CHARSET));
                     break;
                 }
                 case "DELETE": {
@@ -90,7 +88,7 @@ public class HttpTaskServer {
 
     private void handleGetAllTasks(HttpExchange exchange, OutputStream os) throws IOException {
         List<Task> tasks = manager.getAllTasks();
-        HashMap<Integer, Task> allTasks= new HashMap<>();
+        HashMap<Integer, Task> allTasks = new HashMap<>();
         if (!tasks.isEmpty()) {
             for (Task task : tasks) {
                 allTasks.put(task.getId(), task);
@@ -98,9 +96,10 @@ public class HttpTaskServer {
                 os.write(gson.toJson(allTasks).getBytes());
             }
             return;
+        } else {
+            exchange.sendResponseHeaders(404, 0);
+            os.write("No tasks found".getBytes());
         }
-        exchange.sendResponseHeaders(404, 0);
-        os.write("No task created".getBytes());
     }
 
     private void handleGetTaskWithId(Integer taskId, HttpExchange exchange, OutputStream os) throws IOException {
@@ -110,9 +109,8 @@ public class HttpTaskServer {
             os.write(gson.toJson(task).getBytes());
         } else {
             exchange.sendResponseHeaders(404, 0);
-            os.write("Tasks not find".getBytes());
+            os.write("No task created".getBytes());
         }
-
     }
 
     private Integer getQueryParamId(HttpExchange exchange) {
