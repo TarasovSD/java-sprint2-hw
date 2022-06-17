@@ -1,12 +1,12 @@
 package manager;
 
 import exception.TimeCrossingException;
-import models.*;
+import models.Epic;
+import models.Status;
+import models.Subtask;
+import models.Task;
 
-import java.time.LocalDateTime;
 import java.util.*;
-
-import java.util.Comparator;
 
 public class InMemoryManager implements TaskManager {
     protected final HashMap<Integer, Task> tasks = new HashMap<>();
