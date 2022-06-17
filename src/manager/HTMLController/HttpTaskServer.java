@@ -68,21 +68,80 @@ public class HttpTaskServer {
                 case "DELETE": {
                     Integer taskId = getQueryParamId(exchange);
                     if (taskId != null) {
-//                        handleDeleteTaskWithId();
+                        handleDeleteTaskWithId(taskId, exchange, os);
                     } else {
-//                        deleteAllTasks();
+                        handleDeleteAllTasks(exchange, os);
                     }
-                    exchange.sendResponseHeaders(200, 0);
-                    os.write("This is DELETE for /tasks/task/".getBytes(DEFAULT_CHARSET));
                     break;
                 }
-                case "PUT": {
+                case "POST": {
                     Integer taskId = getQueryParamId(exchange);
                     if (taskId != null) {
-//                        handlePutTaskWithId();
+                        handlePutTaskWithId(exchange, os);
                     }
+                    break;
                 }
             }
+        }
+    }
+
+    private void handlePutTaskWithId(HttpExchange exchange, OutputStream os) throws IOException {
+        InputStream inputStream = exchange.getRequestBody();
+        String body = new String(inputStream.readAllBytes(), DEFAULT_CHARSET);
+        Task taskToPost = gson.fromJson(body, Task.class);
+        Integer taskID = taskToPost.getId();
+        if (taskToPost != null) {
+            if (manager.getTask(taskID) != null) {
+                manager.updateTask(taskToPost);
+                exchange.sendResponseHeaders(200, 0);
+                String out = "Task with id " + taskID + " updated";
+                os.write(out.getBytes());
+            } else {
+                manager.createTask(taskToPost);
+                exchange.sendResponseHeaders(200, 0);
+                String out = "Task with id " + taskID + " created";
+                os.write(out.getBytes());
+            }
+        } else {
+            exchange.sendResponseHeaders(404, 0);
+            os.write("Tasks not created".getBytes());
+        }
+    }
+
+    private void handleDeleteAllTasks(HttpExchange exchange, OutputStream os) throws IOException {
+        List<Task> tasks = manager.getAllTasks();
+        if (!tasks.isEmpty()) {
+            manager.deleteAllTasks();
+            List<Task> tasksAfterRemoval = manager.getAllTasks();
+            if (tasksAfterRemoval.isEmpty()) {
+                exchange.sendResponseHeaders(200, 0);
+                os.write("Tasks removed".getBytes());
+            } else {
+                exchange.sendResponseHeaders(404, 0);
+                os.write("Tasks not removed".getBytes());
+            }
+        } else {
+            exchange.sendResponseHeaders(404, 0);
+            os.write("No tasks to delete".getBytes());
+        }
+
+    }
+
+    private void handleDeleteTaskWithId(Integer taskId, HttpExchange exchange, OutputStream os) throws IOException {
+        Task task = manager.getTask(taskId);
+        if (task == null) {
+            exchange.sendResponseHeaders(404, 0);
+            os.write("Task not found".getBytes());
+            return;
+        }
+        manager.deleteTask(taskId);
+        Task taskToDelete = manager.getTask(taskId);
+        if (taskToDelete == null) {
+            exchange.sendResponseHeaders(200, 0);
+            os.write("Task deleted".getBytes());
+        } else {
+            exchange.sendResponseHeaders(404, 0);
+            os.write("Task not deleted".getBytes());
         }
     }
 
@@ -95,7 +154,6 @@ public class HttpTaskServer {
                 exchange.sendResponseHeaders(200, 0);
                 os.write(gson.toJson(allTasks).getBytes());
             }
-            return;
         } else {
             exchange.sendResponseHeaders(404, 0);
             os.write("No tasks found".getBytes());
@@ -115,13 +173,18 @@ public class HttpTaskServer {
 
     private Integer getQueryParamId(HttpExchange exchange) {
         String query = exchange.getRequestURI().getQuery();
-        if (query.contains("id")) {
+        if (query != null && query.contains("id")) {
             String[] paramId = query.split("=");
             if (paramId.length == 2) {
                 return  Integer.parseInt(paramId[1]);
             }
         }
         return null;
+    }
+
+    public static void main(String[] args) throws IOException {
+        HttpTaskServer httpServer = new HttpTaskServer();
+        httpServer.start();
     }
 
     private void handleTask(HttpExchange exchange) throws IOException {
@@ -193,10 +256,7 @@ public class HttpTaskServer {
         }
 
 
-    public static void main(String[] args) throws IOException, InterruptedException {
-        HttpTaskServer httpServer = new HttpTaskServer();
-        httpServer.start();
-    }
+
 
 //    static class TasksHandler implements HttpHandler {
 //        @Override
