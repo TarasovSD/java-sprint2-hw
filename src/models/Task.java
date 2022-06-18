@@ -49,6 +49,13 @@ public class Task {
         this.end = start.plusMinutes(duration);
     }
 
+//    public Task() {
+//        start = getStart();
+//        duration = getDuration();
+//        end = LocalDateTime.now();
+//        end = start.plusMinutes(duration);
+//    }
+
     public String getName() {
         return name;
     }

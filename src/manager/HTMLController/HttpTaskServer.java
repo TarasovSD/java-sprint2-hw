@@ -1,6 +1,7 @@
 package manager.HTMLController;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import manager.Managers;
@@ -15,18 +16,18 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.List;
-import java.util.TreeSet;
+import java.time.LocalDateTime;
+import java.util.*;
 
 public class HttpTaskServer {
     private static final int PORT = 8090;
     private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
-    private static final Gson gson = new Gson();
+    private final Gson gson;
     private final TaskManager manager;
     public final HttpServer httpServer;
 
     public HttpTaskServer() throws IOException {
+        gson = getGson();
         httpServer = HttpServer.create(new InetSocketAddress("localhost", PORT), 0);
         httpServer.createContext("/tasks/task/", this::taskHandler);
         httpServer.createContext("/tasks/subtask/", this::subtaskHandler);
@@ -42,9 +43,9 @@ public class HttpTaskServer {
             if (!prioritizedTasks.isEmpty()) {
                 for (Task task : prioritizedTasks) {
                     allTasks.put(task.getId(), task);
-                    exchange.sendResponseHeaders(200, 0);
-                    os.write(gson.toJson(allTasks).getBytes());
                 }
+                exchange.sendResponseHeaders(200, 0);
+                os.write(gson.toJson(allTasks).getBytes());
             } else {
                 exchange.sendResponseHeaders(404, 0);
                 os.write("No tasks found".getBytes());
@@ -74,10 +75,7 @@ public class HttpTaskServer {
                     break;
                 }
                 case "POST": {
-                    Integer epicId = getQueryParamId(exchange);
-                    if (epicId != null) {
-                        handlePutEpicWithId(exchange, os);
-                    }
+                    handlePutEpicWithId(exchange, os);
                     break;
                 }
             }
@@ -90,13 +88,43 @@ public class HttpTaskServer {
         Epic epicToPost = gson.fromJson(body, Epic.class);
         Integer epicID = epicToPost.getId();
         if (epicToPost != null) {
-            if (manager.getEpic(epicID) != null) {
+            Epic epic = manager.getEpic(epicID);
+            if (epic != null) {
+                if (epic.getSubtasks() == null || epic.getSubtasks().isEmpty()) {
+                    epicToPost.setSubtasks(new ArrayList<>());
+                    LocalDateTime start = LocalDateTime.now();
+                    epicToPost.setStart(start);
+                    int duration = 0;
+                    epicToPost.setDuration(duration);
+                    epicToPost.setEnd(start.plusMinutes(duration));
+                } else if (epic.getSubtasks().size() == 1) {
+                    Subtask subtask = epicToPost.getSubtasks().get(0);
+                    epicToPost.setStart(subtask.getStart());
+                    epicToPost.setDuration(subtask.getDuration());
+                    epicToPost.setEnd(subtask.getEnd());
+                } else {
+                    List<Subtask> epicSubtasks = epic.getSubtasks();
+                    TreeSet<Subtask> sortedByTimeListOfSubtasks = new TreeSet<>(Comparator.comparing(Task::getStart));
+                    int subtaskEpicDuration;
+                    sortedByTimeListOfSubtasks.addAll(epicSubtasks);
+                    if (!sortedByTimeListOfSubtasks.isEmpty()) {
+                        epicToPost.setStart(sortedByTimeListOfSubtasks.first().getStart());
+                        epicToPost.setEnd(sortedByTimeListOfSubtasks.last().getEnd());
+                    }
+                    int epicDuration = 0;
+                    for (Subtask subtask : epicSubtasks) {
+                        subtaskEpicDuration = subtask.getDuration();
+                        epicDuration = epicDuration + subtaskEpicDuration;
+                    }
+                    epicToPost.setDuration(epicDuration);
+                }
                 manager.updateEpic(epicToPost);
                 exchange.sendResponseHeaders(200, 0);
                 String out = "Epic with id " + epicID + " updated";
                 os.write(out.getBytes());
             } else {
                 manager.createEpic(epicToPost);
+                epicToPost.setSubtasks(new ArrayList<>());
                 exchange.sendResponseHeaders(200, 0);
                 String out = "Epic with id " + epicID + " created";
                 os.write(out.getBytes());
@@ -191,10 +219,7 @@ public class HttpTaskServer {
                     break;
                 }
                 case "POST": {
-                    Integer subtaskId = getQueryParamId(exchange);
-                    if (subtaskId != null) {
-                        handlePutSubtaskWithId(exchange, os);
-                    }
+                    handlePutSubtaskWithId(exchange, os);
                     break;
                 }
             }
@@ -205,6 +230,16 @@ public class HttpTaskServer {
         InputStream inputStream = exchange.getRequestBody();
         String body = new String(inputStream.readAllBytes(), DEFAULT_CHARSET);
         Subtask subtaskToPost = gson.fromJson(body, Subtask.class);
+        LocalDateTime start = null;
+        if (subtaskToPost.getStart() != null) {
+            start = subtaskToPost.getStart();
+        }
+        int duration = 0;
+        if (subtaskToPost.getDuration() != 0) {
+            duration = subtaskToPost.getDuration();
+        }
+        LocalDateTime end = start.plusMinutes(duration);
+        subtaskToPost.setEnd(end);
         Integer subtaskID = subtaskToPost.getId();
         if (subtaskToPost != null) {
             if (manager.getSubtask(subtaskID) != null) {
@@ -308,10 +343,7 @@ public class HttpTaskServer {
                     break;
                 }
                 case "POST": {
-                    Integer taskId = getQueryParamId(exchange);
-                    if (taskId != null) {
-                        handlePutTaskWithId(exchange, os);
-                    }
+                    handlePutTaskWithId(exchange, os);
                     break;
                 }
             }
@@ -322,6 +354,16 @@ public class HttpTaskServer {
         InputStream inputStream = exchange.getRequestBody();
         String body = new String(inputStream.readAllBytes(), DEFAULT_CHARSET);
         Task taskToPost = gson.fromJson(body, Task.class);
+        LocalDateTime start = null;
+        if (taskToPost.getStart() != null) {
+            start = taskToPost.getStart();
+        }
+        int duration = 0;
+        if (taskToPost.getDuration() != 0) {
+            duration = taskToPost.getDuration();
+        }
+        LocalDateTime end = start.plusMinutes(duration);
+        taskToPost.setEnd(end);
         Integer taskID = taskToPost.getId();
         if (taskToPost != null) {
             if (manager.getTask(taskID) != null) {
@@ -412,6 +454,12 @@ public class HttpTaskServer {
             }
         }
         return null;
+    }
+
+    private static Gson getGson()  {
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        gsonBuilder.registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter());
+        return gsonBuilder.create();
     }
 
     public static void main(String[] args) throws IOException {
