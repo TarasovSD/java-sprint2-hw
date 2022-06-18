@@ -11,7 +11,7 @@ public class Managers {
      * Получает реализацию класса InMemoryManager
      */
     public static TaskManager getDefault() {
-            return new HTTPTaskManager("http://localhost:8060/");
+        return new HTTPTaskManager("http://localhost:8060/");
     }
 
     public static HistoryManager getDefaultHistory() {

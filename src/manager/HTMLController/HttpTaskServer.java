@@ -177,9 +177,9 @@ public class HttpTaskServer {
         if (!epics.isEmpty()) {
             for (Epic epic : epics) {
                 allEpics.put(epic.getId(), epic);
-                exchange.sendResponseHeaders(200, 0);
-                os.write(gson.toJson(allEpics).getBytes());
             }
+            exchange.sendResponseHeaders(200, 0);
+            os.write(gson.toJson(allEpics).getBytes());
         } else {
             exchange.sendResponseHeaders(404, 0);
             os.write("No epics found".getBytes());
@@ -425,9 +425,9 @@ public class HttpTaskServer {
         if (!tasks.isEmpty()) {
             for (Task task : tasks) {
                 allTasks.put(task.getId(), task);
-                exchange.sendResponseHeaders(200, 0);
-                os.write(gson.toJson(allTasks).getBytes());
             }
+            exchange.sendResponseHeaders(200, 0);
+            os.write(gson.toJson(allTasks).getBytes());
         } else {
             exchange.sendResponseHeaders(404, 0);
             os.write("No tasks found".getBytes());
@@ -450,13 +450,13 @@ public class HttpTaskServer {
         if (query != null && query.contains("id")) {
             String[] paramId = query.split("=");
             if (paramId.length == 2) {
-                return  Integer.parseInt(paramId[1]);
+                return Integer.parseInt(paramId[1]);
             }
         }
         return null;
     }
 
-    private static Gson getGson()  {
+    private static Gson getGson() {
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter());
         return gsonBuilder.create();
@@ -471,5 +471,9 @@ public class HttpTaskServer {
         System.out.println("Запускаем сервер на порту " + PORT);
         System.out.println("Открой в браузере http://localhost:" + PORT + "/");
         httpServer.start();
+    }
+
+    public void stop() {
+        httpServer.stop(0);
     }
 }

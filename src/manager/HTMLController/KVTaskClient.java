@@ -74,6 +74,5 @@ public class KVTaskClient {
         System.out.println("Код состояния: " + response.statusCode());
         System.out.println("Тело ответа: " + response.body());
     }
-
 }
 

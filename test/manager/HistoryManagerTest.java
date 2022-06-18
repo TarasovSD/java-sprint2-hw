@@ -1,6 +1,9 @@
 package manager;
 
+import manager.HTMLController.HttpTaskServer;
+import manager.HTMLController.KVServer;
 import models.*;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -11,17 +14,31 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HistoryManagerTest {
-    TaskManager taskManager = Managers.getDefault();
+    TaskManager taskManager;
+    KVServer kvServer;
+    HttpTaskServer httpServer;
     Task newTask;
     Task newTask1;
     Subtask subtask;
     Epic epic;
 
-    HistoryManagerTest() throws IOException, InterruptedException {
+    void start() throws IOException {
+        kvServer = new KVServer();
+        kvServer.start();
+        httpServer = new HttpTaskServer();
+        httpServer.start();
+    }
+
+    @AfterEach
+    void stop() {
+        httpServer.stop();
+        kvServer.stop();
     }
 
     @BeforeEach
-    void init() {
+    void init() throws IOException {
+        start();
+        taskManager = Managers.getDefault();
         newTask = new Task(1, TaskTypes.TASK, "Задача 1", "Описание задачи 1", Status.NEW,
                 LocalDateTime.of(2022, 5, 31, 5, 0), 20);
         taskManager.createTask(newTask);

@@ -5,11 +5,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import manager.FileBackedTasksManager;
-import manager.Managers;
-import manager.TaskManager;
-import models.*;
+import models.Epic;
+import models.Subtask;
+import models.Task;
 
-import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -39,7 +38,7 @@ public class HTTPTaskManager extends FileBackedTasksManager {
         }
     }
 
-    public static Gson getGson()  {
+    public static Gson getGson() {
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter());
         return gsonBuilder.create();
@@ -72,31 +71,35 @@ public class HTTPTaskManager extends FileBackedTasksManager {
             System.out.println("Во время выполнения запроса ресурса по url-адресу: '" + url + "' возникла ошибка.\n" +
                     "Проверьте, пожалуйста, адрес и повторите попытку.");
         }
-
     }
 
     @Override
     public void load() {
         try {
             String jsonTasks = client.load(task);
-            final HashMap <Integer, Task> restoredTasks = gson.fromJson(jsonTasks,
-                    new TypeToken<HashMap <Integer, Task>>(){}.getType());
+            final HashMap<Integer, Task> restoredTasks = gson.fromJson(jsonTasks,
+                    new TypeToken<HashMap<Integer, Task>>() {
+                    }.getType());
             for (Map.Entry<Integer, Task> entry : restoredTasks.entrySet()) {
+                findingIntersectionsAndAddingTask(entry.getValue());
                 tasks.put(entry.getKey(), entry.getValue());
             }
             String jsonEpics = client.load(epic);
-            final HashMap <Integer, Epic> restoredEpics = gson.fromJson(jsonEpics,
-                    new TypeToken<HashMap <Integer, Epic>>(){}.getType());
+            final HashMap<Integer, Epic> restoredEpics = gson.fromJson(jsonEpics,
+                    new TypeToken<HashMap<Integer, Epic>>() {
+                    }.getType());
             for (Map.Entry<Integer, Epic> entry : restoredEpics.entrySet()) {
                 epics.put(entry.getKey(), entry.getValue());
             }
             String jsonSubtasks = client.load(subtask);
-            final HashMap <Integer, Subtask> restoredSubtasks = gson.fromJson(jsonSubtasks,
-                    new TypeToken<HashMap <Integer, Subtask>>(){}.getType());
+            final HashMap<Integer, Subtask> restoredSubtasks = gson.fromJson(jsonSubtasks,
+                    new TypeToken<HashMap<Integer, Subtask>>() {
+                    }.getType());
             for (Map.Entry<Integer, Subtask> entry : restoredSubtasks.entrySet()) {
+                findingIntersectionsAndAddingTask(entry.getValue());
                 subtasks.put(entry.getKey(), entry.getValue());
             }
-            String jsonHistory  = client.load(historyKey);
+            String jsonHistory = client.load(historyKey);
             final int[] massiveHistoryId = gson.fromJson(jsonHistory, int[].class);
             int a = 0;
             while (a < massiveHistoryId.length) {
@@ -124,30 +127,5 @@ public class HTTPTaskManager extends FileBackedTasksManager {
             System.out.println("Во время выполнения запроса ресурса по url-адресу: '" + url + "' возникла ошибка.\n" +
                     "Проверьте, пожалуйста, адрес и повторите попытку.");
         }
-
-    }
-
-    public static void main(String[] args) throws IOException, InterruptedException {
-
-        TaskManager manager = Managers.getDefault();
-
-
-        Task newTask = new Task(1, TaskTypes.TASK, "Задача 1", "Описание задачи 1", Status.NEW,
-                LocalDateTime.of(2022, 5, 31, 6, 0), 20);
-        manager.createTask(newTask);
-        Task newTask1 = new Task(2, TaskTypes.TASK, "Задача 2", "Описание задачи 2", Status.NEW,
-                LocalDateTime.of(2022, 5, 31, 7, 0), 20);
-        manager.createTask(newTask1);
-        manager.getTask(1);
-        manager.getTask(2);
-
-        System.out.println(manager.getAllTasks());
-
-        TaskManager manager1 = HTTPTaskManager.loadFromFile("http://localhost:8070/");
-
-        System.out.println(manager1.getAllTasks());
-        System.out.println(manager1.getHistory());
-
-
     }
 }

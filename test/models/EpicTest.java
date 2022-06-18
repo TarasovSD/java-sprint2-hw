@@ -1,7 +1,10 @@
 package models;
 
+import manager.HTMLController.HttpTaskServer;
+import manager.HTMLController.KVServer;
 import manager.Managers;
 import manager.TaskManager;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -11,7 +14,9 @@ import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.*;
 
 class EpicTest {
-    TaskManager taskManager = Managers.getDefault();
+    KVServer kvServer;
+    HttpTaskServer httpServer;
+    TaskManager taskManager;
     Task newTask;
     Task newTask1;
     Subtask subtask;
@@ -26,11 +31,23 @@ class EpicTest {
     Epic epic;
     Epic epic1;
 
-    EpicTest() throws IOException, InterruptedException {
+    void start() throws IOException {
+        kvServer = new KVServer();
+        kvServer.start();
+        httpServer = new HttpTaskServer();
+        httpServer.start();
+    }
+
+    @AfterEach
+    void stop() {
+        httpServer.stop();
+        kvServer.stop();
     }
 
     @BeforeEach
-    void init() {
+    void init() throws IOException {
+        start();
+        taskManager = Managers.getDefault();
         newTask = new Task(1, TaskTypes.TASK, "Задача 1", "Описание задачи 1", Status.NEW,
                 LocalDateTime.of(2022, 5, 31, 5, 0), 20);
         taskManager.createTask(newTask);
