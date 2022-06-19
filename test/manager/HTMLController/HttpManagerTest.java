@@ -78,7 +78,7 @@ public class HttpManagerTest {
         HttpRequest requestSubtask2 = HttpRequest.newBuilder().uri(url3).POST(bodySubtask2).build();
         HttpResponse<String> responseSubtask2 = client.send(requestSubtask2, HttpResponse.BodyHandlers.ofString());
 
-        manager = HTTPTaskManager.loadFromFile("http://localhost:8060/");
+        manager = HTTPTaskManager.loadFromServer("http://localhost:8060/");
 
         final TreeSet<Task> sortedTasks = manager.getPrioritizedTasks();
 
@@ -131,7 +131,7 @@ public class HttpManagerTest {
         HttpRequest subtaskRequest = HttpRequest.newBuilder().uri(url4).GET().build();
         HttpResponse<String> subtaskResponse = client.send(subtaskRequest, HttpResponse.BodyHandlers.ofString());
 
-        manager = HTTPTaskManager.loadFromFile("http://localhost:8060/");
+        manager = HTTPTaskManager.loadFromServer("http://localhost:8060/");
 
         final List<Task> history = manager.getHistory();
 
@@ -178,7 +178,7 @@ public class HttpManagerTest {
         HttpRequest tasksRequest = HttpRequest.newBuilder().uri(url3).GET().build();
         HttpResponse<String> tasksResponse = client.send(tasksRequest, HttpResponse.BodyHandlers.ofString());
         String jsonTasks = tasksResponse.body();
-        HashMap<Integer, Task> allTasks = gson.fromJson(jsonTasks, new TypeToken<HashMap<Integer, Task>>() {
+        List<Task> allTasks = gson.fromJson(jsonTasks, new TypeToken<List<Task>>() {
         }.getType());
 
         assertEquals(200, taskResponse.statusCode(), "Код ответа сервера должен быть: 200");
@@ -194,8 +194,8 @@ public class HttpManagerTest {
         HttpResponse<String> tasksResponseAfterDelete = client.send(tasksRequestAfterDelete,
                 HttpResponse.BodyHandlers.ofString());
         String jsonTasksRequestAfterDelete = tasksResponseAfterDelete.body();
-        HashMap<Integer, Task> allTasksAfterDelete = gson.fromJson(jsonTasksRequestAfterDelete,
-                new TypeToken<HashMap<Integer, Task>>() {
+        List<Task> allTasksAfterDelete = gson.fromJson(jsonTasksRequestAfterDelete,
+                new TypeToken<List<Task>>() {
                 }.getType());
 
         assertEquals(200, task2ResponseDelete.statusCode(), "Код ответа сервера должен быть: 200");
@@ -312,7 +312,7 @@ public class HttpManagerTest {
         HttpRequest epicsRequest = HttpRequest.newBuilder().uri(url).GET().build();
         HttpResponse<String> epicsResponse = client.send(epicsRequest, HttpResponse.BodyHandlers.ofString());
         String jsonEpics = epicsResponse.body();
-        HashMap<Integer, Epic> allEpics = gson.fromJson(jsonEpics, new TypeToken<HashMap<Integer, Epic>>() {
+        List<Epic> allEpics = gson.fromJson(jsonEpics, new TypeToken<List<Epic>>() {
         }.getType());
 
         assertEquals(200, epicsResponse.statusCode(), "Код ответа сервера должен быть: 200");
@@ -324,8 +324,8 @@ public class HttpManagerTest {
         HttpResponse<String> epicsResponseAfterDelete = client.send(epicsRequestAfterDelete,
                 HttpResponse.BodyHandlers.ofString());
         String jsonEpicsRequestAfterDelete = epicsResponseAfterDelete.body();
-        HashMap<Integer, Epic> allEpicsAfterDelete = gson.fromJson(jsonEpicsRequestAfterDelete,
-                new TypeToken<HashMap<Integer, Epic>>() {
+        List<Epic> allEpicsAfterDelete = gson.fromJson(jsonEpicsRequestAfterDelete,
+                new TypeToken<List<Epic>>() {
                 }.getType());
 
         assertEquals(200, epic2ResponseDelete.statusCode(), "Код ответа сервера должен быть: 200");
@@ -338,8 +338,8 @@ public class HttpManagerTest {
         HttpResponse<String> subtasksResponseAfterDelete = client.send(subtasksRequestAfterDelete,
                 HttpResponse.BodyHandlers.ofString());
         String jsonSubtasksResponseAfterDelete = subtasksResponseAfterDelete.body();
-        HashMap<Integer, Subtask> allSubtasksAfterDelete = gson.fromJson(jsonSubtasksResponseAfterDelete,
-                new TypeToken<HashMap<Integer, Subtask>>() {
+        List<Subtask> allSubtasksAfterDelete = gson.fromJson(jsonSubtasksResponseAfterDelete,
+                new TypeToken<List<Subtask>>() {
                 }.getType());
 
         HttpRequest getEpic1Request4 = HttpRequest.newBuilder().uri(url1).GET().build();

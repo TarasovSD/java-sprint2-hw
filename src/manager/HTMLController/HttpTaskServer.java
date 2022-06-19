@@ -32,24 +32,38 @@ public class HttpTaskServer {
         httpServer.createContext("/tasks/task/", this::taskHandler);
         httpServer.createContext("/tasks/subtask/", this::subtaskHandler);
         httpServer.createContext("/tasks/epic/", this::epicHandler);
-        httpServer.createContext("/tasks/", this::historyHandler);
+        httpServer.createContext("/tasks/", this::prioritizedTasksHandler);
+        httpServer.createContext("/tasks/history/", this::historyHandler);
         manager = Managers.getDefault();
     }
 
-    private void historyHandler(HttpExchange exchange) throws IOException {
+    private void prioritizedTasksHandler(HttpExchange exchange) {
         TreeSet<Task> prioritizedTasks = manager.getPrioritizedTasks();
-        HashMap<Integer, Task> allTasks = new HashMap<>();
         try (OutputStream os = exchange.getResponseBody()) {
             if (!prioritizedTasks.isEmpty()) {
-                for (Task task : prioritizedTasks) {
-                    allTasks.put(task.getId(), task);
-                }
                 exchange.sendResponseHeaders(200, 0);
-                os.write(gson.toJson(allTasks).getBytes());
+                os.write(gson.toJson(prioritizedTasks).getBytes());
             } else {
                 exchange.sendResponseHeaders(404, 0);
                 os.write("No tasks found".getBytes());
             }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void historyHandler(HttpExchange exchange) {
+        List<Task> history = manager.getHistory();
+        try (OutputStream os = exchange.getResponseBody()) {
+            if (!history.isEmpty()) {
+                exchange.sendResponseHeaders(200, 0);
+                os.write(gson.toJson(history).getBytes());
+            } else {
+                exchange.sendResponseHeaders(404, 0);
+                os.write("No tasks found in history".getBytes());
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -90,34 +104,7 @@ public class HttpTaskServer {
         if (epicToPost != null) {
             Epic epic = manager.getEpic(epicID);
             if (epic != null) {
-                if (epic.getSubtasks() == null || epic.getSubtasks().isEmpty()) {
-                    epicToPost.setSubtasks(new ArrayList<>());
-                    LocalDateTime start = LocalDateTime.now();
-                    epicToPost.setStart(start);
-                    int duration = 0;
-                    epicToPost.setDuration(duration);
-                    epicToPost.setEnd(start.plusMinutes(duration));
-                } else if (epic.getSubtasks().size() == 1) {
-                    Subtask subtask = epicToPost.getSubtasks().get(0);
-                    epicToPost.setStart(subtask.getStart());
-                    epicToPost.setDuration(subtask.getDuration());
-                    epicToPost.setEnd(subtask.getEnd());
-                } else {
-                    List<Subtask> epicSubtasks = epic.getSubtasks();
-                    TreeSet<Subtask> sortedByTimeListOfSubtasks = new TreeSet<>(Comparator.comparing(Task::getStart));
-                    int subtaskEpicDuration;
-                    sortedByTimeListOfSubtasks.addAll(epicSubtasks);
-                    if (!sortedByTimeListOfSubtasks.isEmpty()) {
-                        epicToPost.setStart(sortedByTimeListOfSubtasks.first().getStart());
-                        epicToPost.setEnd(sortedByTimeListOfSubtasks.last().getEnd());
-                    }
-                    int epicDuration = 0;
-                    for (Subtask subtask : epicSubtasks) {
-                        subtaskEpicDuration = subtask.getDuration();
-                        epicDuration = epicDuration + subtaskEpicDuration;
-                    }
-                    epicToPost.setDuration(epicDuration);
-                }
+
                 manager.updateEpic(epicToPost);
                 exchange.sendResponseHeaders(200, 0);
                 String out = "Epic with id " + epicID + " updated";
@@ -173,13 +160,9 @@ public class HttpTaskServer {
 
     private void handleGetAllEpics(HttpExchange exchange, OutputStream os) throws IOException {
         List<Epic> epics = manager.getAllEpics();
-        HashMap<Integer, Epic> allEpics = new HashMap<>();
         if (!epics.isEmpty()) {
-            for (Epic epic : epics) {
-                allEpics.put(epic.getId(), epic);
-            }
             exchange.sendResponseHeaders(200, 0);
-            os.write(gson.toJson(allEpics).getBytes());
+            os.write(gson.toJson(epics).getBytes());
         } else {
             exchange.sendResponseHeaders(404, 0);
             os.write("No epics found".getBytes());
@@ -230,16 +213,6 @@ public class HttpTaskServer {
         InputStream inputStream = exchange.getRequestBody();
         String body = new String(inputStream.readAllBytes(), DEFAULT_CHARSET);
         Subtask subtaskToPost = gson.fromJson(body, Subtask.class);
-        LocalDateTime start = null;
-        if (subtaskToPost.getStart() != null) {
-            start = subtaskToPost.getStart();
-        }
-        int duration = 0;
-        if (subtaskToPost.getDuration() != 0) {
-            duration = subtaskToPost.getDuration();
-        }
-        LocalDateTime end = start.plusMinutes(duration);
-        subtaskToPost.setEnd(end);
         Integer subtaskID = subtaskToPost.getId();
         if (subtaskToPost != null) {
             if (manager.getSubtask(subtaskID) != null) {
@@ -297,13 +270,9 @@ public class HttpTaskServer {
 
     private void handleGetAllSubtasks(HttpExchange exchange, OutputStream os) throws IOException {
         List<Subtask> subtasks = manager.getAllSubtasks();
-        HashMap<Integer, Subtask> allSubtasks = new HashMap<>();
         if (!subtasks.isEmpty()) {
-            for (Subtask subtask : subtasks) {
-                allSubtasks.put(subtask.getId(), subtask);
-                exchange.sendResponseHeaders(200, 0);
-                os.write(gson.toJson(allSubtasks).getBytes());
-            }
+            exchange.sendResponseHeaders(200, 0);
+            os.write(gson.toJson(subtasks).getBytes());
         } else {
             exchange.sendResponseHeaders(404, 0);
             os.write("No subtasks found".getBytes());
@@ -354,16 +323,6 @@ public class HttpTaskServer {
         InputStream inputStream = exchange.getRequestBody();
         String body = new String(inputStream.readAllBytes(), DEFAULT_CHARSET);
         Task taskToPost = gson.fromJson(body, Task.class);
-        LocalDateTime start = null;
-        if (taskToPost.getStart() != null) {
-            start = taskToPost.getStart();
-        }
-        int duration = 0;
-        if (taskToPost.getDuration() != 0) {
-            duration = taskToPost.getDuration();
-        }
-        LocalDateTime end = start.plusMinutes(duration);
-        taskToPost.setEnd(end);
         Integer taskID = taskToPost.getId();
         if (taskToPost != null) {
             if (manager.getTask(taskID) != null) {
@@ -421,13 +380,9 @@ public class HttpTaskServer {
 
     private void handleGetAllTasks(HttpExchange exchange, OutputStream os) throws IOException {
         List<Task> tasks = manager.getAllTasks();
-        HashMap<Integer, Task> allTasks = new HashMap<>();
         if (!tasks.isEmpty()) {
-            for (Task task : tasks) {
-                allTasks.put(task.getId(), task);
-            }
             exchange.sendResponseHeaders(200, 0);
-            os.write(gson.toJson(allTasks).getBytes());
+            os.write(gson.toJson(tasks).getBytes());
         } else {
             exchange.sendResponseHeaders(404, 0);
             os.write("No tasks found".getBytes());

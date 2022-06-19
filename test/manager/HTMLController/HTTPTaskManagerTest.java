@@ -103,8 +103,9 @@ class HTTPTaskManagerTest {
         manager.getTask(1);
         manager.getTask(2);
 
-        TaskManager manager1 = HTTPTaskManager.loadFromFile("http://localhost:8060/");
+        TaskManager manager1 = HTTPTaskManager.loadFromServer("http://localhost:8060/");
 
+        assertEquals(2, manager1.getHistory().size(), "Размер списка истории должен быть: 2");
         assertNotNull(manager1.getTask(1), "newTask не должна быть null");
         assertNotNull(manager1.getTask(2));
         assertNotNull(manager1.getEpic(3));
@@ -132,6 +133,7 @@ class HTTPTaskManagerTest {
                 "Время конца эпика и конца подзадачи должны совпадать");
         assertEquals(manager1.getEpic(3).getDuration(), manager1.getSubtask(4).getDuration(),
                 "Продолжительность задачи и продолжительность эпика должны совпадать");
+
     }
 
     private static Gson getGson() {

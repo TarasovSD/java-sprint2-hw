@@ -13,10 +13,10 @@ import com.google.gson.JsonParser;
 
 
 public class KVTaskClient {
-    String token;
-    HttpClient client;
-    URI uri;
-    String url;
+    private String token;
+    private HttpClient client;
+    private URI uri;
+    private String url;
 
     public KVTaskClient(String url) {
         this.url = url;
@@ -28,7 +28,11 @@ public class KVTaskClient {
         HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
         try {
             HttpResponse<String> response = client.send(request, handler);
-            this.token = response.body();
+            if (response.statusCode() == 200) {
+                this.token = response.body();
+            } else {
+                throw new RuntimeException("Код ответа должнен быть: 200");
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (InterruptedException e) {
@@ -47,19 +51,24 @@ public class KVTaskClient {
                 .build();
         HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
         HttpResponse<String> response = client.send(request, handler);
-        JsonElement jsonElement = JsonParser.parseString(response.body());
         String json = "";
-        if (jsonElement.isJsonObject()) {
-            JsonObject jsonObject = jsonElement.getAsJsonObject();
-            json = jsonObject.toString();
-        }
-        if (jsonElement.isJsonArray()) {
-            JsonArray jsonArray = jsonElement.getAsJsonArray();
-            json = jsonArray.toString();
-        }
+        if (response.statusCode() == 200) {
+            JsonElement jsonElement = JsonParser.parseString(response.body());
 
-        System.out.println("Код состояния: " + response.statusCode());
-        System.out.println("Тело ответа: " + response.body());
+            if (jsonElement.isJsonObject()) {
+                JsonObject jsonObject = jsonElement.getAsJsonObject();
+                json = jsonObject.toString();
+            }
+            if (jsonElement.isJsonArray()) {
+                JsonArray jsonArray = jsonElement.getAsJsonArray();
+                json = jsonArray.toString();
+            }
+
+            System.out.println("Код состояния: " + response.statusCode());
+            System.out.println("Тело ответа: " + response.body());
+        } else {
+            throw new RuntimeException("Код ответа должнен быть: 200");
+        }
         return json;
     }
 
@@ -71,8 +80,12 @@ public class KVTaskClient {
                 .build();
         HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
         HttpResponse<String> response = client.send(request, handler);
-        System.out.println("Код состояния: " + response.statusCode());
-        System.out.println("Тело ответа: " + response.body());
+        if (response.statusCode() == 200) {
+            System.out.println("Код состояния: " + response.statusCode());
+            System.out.println("Тело ответа: " + response.body());
+        } else {
+            throw new RuntimeException("Код ответа должнен быть: 200");
+        }
     }
 }
 
