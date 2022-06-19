@@ -94,131 +94,29 @@ public class HTTPTaskManager extends FileBackedTasksManager {
             String jsonHistory = client.load(historyKey);
             final List<Integer> historyId = gson.fromJson(jsonHistory, new TypeToken<List<Integer>>() {
             }.getType());
-            int a = 0;
-            while (a < historyId.size()) {
+            for (int i : historyId) {
                 List<Task> allTasks = getAllTasks();
                 List<Subtask> allSubtasks = getAllSubtasks();
                 List<Epic> allEpics = getAllEpics();
                 for (Task task : allTasks) {
-                    if (historyId.get(a) == task.getId()) {
+                    if (i == task.getId()) {
                         historyManager.add(task);
                     }
                 }
                 for (Subtask subtask : allSubtasks) {
-                    if (historyId.get(a) == subtask.getId()) {
+                    if (i == subtask.getId()) {
                         historyManager.add(subtask);
                     }
                 }
                 for (Epic epic : allEpics) {
-                    if (historyId.get(a) == epic.getId()) {
+                    if (i == epic.getId()) {
                         historyManager.add(epic);
                     }
                 }
-                a++;
             }
         } catch (InterruptedException | IOException e) {
             System.out.println("Во время выполнения запроса ресурса по url-адресу: '" + url + "' возникла ошибка.\n" +
                     "Проверьте, пожалуйста, адрес и повторите попытку.");
         }
-    }
-
-    @Override
-    public Task createTask(Task newTask) {
-        LocalDateTime start = null;
-        if (newTask.getStart() != null) {
-            start = newTask.getStart();
-        }
-        int duration = 0;
-        if (newTask.getDuration() != 0) {
-            duration = newTask.getDuration();
-        }
-        LocalDateTime end = start.plusMinutes(duration);
-        newTask.setEnd(end);
-        final Task task = super.createTask(newTask);
-        return task;
-    }
-
-    @Override
-    public Task updateTask(Task taskToUpdate) {
-        LocalDateTime start = null;
-        if (taskToUpdate.getStart() != null) {
-            start = taskToUpdate.getStart();
-        }
-        int duration = 0;
-        if (taskToUpdate.getDuration() != 0) {
-            duration = taskToUpdate.getDuration();
-
-        }
-        LocalDateTime end = start.plusMinutes(duration);
-        taskToUpdate.setEnd(end);
-        final Task task = super.updateTask(taskToUpdate);
-        return task;
-    }
-
-    @Override
-    public Subtask createSubtask(Subtask newSubtask) {
-        LocalDateTime start = null;
-        if (newSubtask.getStart() != null) {
-            start = newSubtask.getStart();
-        }
-        int duration = 0;
-        if (newSubtask.getDuration() != 0) {
-            duration = newSubtask.getDuration();
-        }
-        LocalDateTime end = start.plusMinutes(duration);
-        newSubtask.setEnd(end);
-        final Subtask subtask = super.createSubtask(newSubtask);
-        return subtask;
-    }
-
-    @Override
-    public Subtask updateSubtask(Subtask taskToUpdate) {
-        LocalDateTime start = null;
-        if (taskToUpdate.getStart() != null) {
-            start = taskToUpdate.getStart();
-        }
-        int duration = 0;
-        if (taskToUpdate.getDuration() != 0) {
-            duration = taskToUpdate.getDuration();
-        }
-        LocalDateTime end = start.plusMinutes(duration);
-        taskToUpdate.setEnd(end);
-        final Subtask subtask = super.updateSubtask(taskToUpdate);
-        return subtask;
-    }
-
-    @Override
-    public Epic createEpic(Epic newEpic) {
-        final Epic epic = super.createEpic(newEpic);
-        return epic;
-    }
-
-    @Override
-    public Epic updateEpic(Epic epicToUpdate) {
-        if (epicToUpdate.getSubtasks() == null || epicToUpdate.getSubtasks().isEmpty()) {
-            epicToUpdate.setSubtasks(new ArrayList<>());
-        } else if (epicToUpdate.getSubtasks().size() == 1) {
-            Subtask subtask = epicToUpdate.getSubtasks().get(0);
-            epicToUpdate.setStart(subtask.getStart());
-            epicToUpdate.setDuration(subtask.getDuration());
-            epicToUpdate.setEnd(subtask.getEnd());
-        } else {
-            List<Subtask> epicSubtasks = epicToUpdate.getSubtasks();
-            TreeSet<Subtask> sortedByTimeListOfSubtasks = new TreeSet<>(Comparator.comparing(Task::getStart));
-            int subtaskEpicDuration;
-            sortedByTimeListOfSubtasks.addAll(epicSubtasks);
-            if (!sortedByTimeListOfSubtasks.isEmpty()) {
-                epicToUpdate.setStart(sortedByTimeListOfSubtasks.first().getStart());
-                epicToUpdate.setEnd(sortedByTimeListOfSubtasks.last().getEnd());
-            }
-            int epicDuration = 0;
-            for (Subtask subtask : epicSubtasks) {
-                subtaskEpicDuration = subtask.getDuration();
-                epicDuration = epicDuration + subtaskEpicDuration;
-            }
-            epicToUpdate.setDuration(epicDuration);
-        }
-        final Epic epic = super.updateEpic(epicToUpdate);
-        return epic;
     }
 }
