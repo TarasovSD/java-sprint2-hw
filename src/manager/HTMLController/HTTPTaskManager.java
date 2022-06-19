@@ -140,7 +140,6 @@ public class HTTPTaskManager extends FileBackedTasksManager {
 
     @Override
     public Task updateTask(Task taskToUpdate) {
-
         LocalDateTime start = null;
         if (taskToUpdate.getStart() != null) {
             start = taskToUpdate.getStart();
